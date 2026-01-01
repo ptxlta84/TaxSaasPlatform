@@ -1,0 +1,11 @@
+{
+  "gross_salary": "Gross Salary",
+  "net_salary": "Net Salary",
+  "deductions": "Deductions",
+  "taxable_income": "Taxable Income",
+  "income_tax": "Income Tax",
+  "cess": "Health & Education Cess",
+  "total_liability": "Total Liability",
+  "refund_due": "Refund Due",
+  "net_payable": "Net Tax Payable"
+}

@@ -1,0 +1,68 @@
+:root {
+  /* Primary Brand Colors - Trust & Professional */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-500: #6366f1; /* Indigo - Trustworthy */
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+
+  /* Success/Error for Tax Context */
+  --color-success-500: #10b981; /* Green for refunds */
+  --color-warning-500: #f59e0b; /* Amber for pending */
+  --color-error-500: #ef4444; /* Red for taxes due */
+  --color-error-600: #dc2626;
+
+  /* Financial Neutral Palette */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+
+  /* Typography Scale */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+
+  /* Spacing Scale */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-4: 1rem; /* 16px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows - Subtle for FinTech */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Z-index layers */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
+
+[data-theme="dark"] {
+  /* Dark mode overrides */
+  --color-gray-50: #111827;
+  --color-gray-100: #1f2937;
+  --color-gray-200: #374151;
+  --color-gray-700: #d1d5db;
+  --color-gray-900: #f9fafb;
+  
+  /* Adjusted shadows for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}

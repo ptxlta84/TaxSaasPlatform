@@ -1,0 +1,57 @@
+services:
+  # Backend Service
+  - type: web
+    name: taxsaas-server
+    env: node
+    plan: free
+    dockerCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: VITE_API_URL
+        value: https://taxsaas-server.onrender.com
+      - key: MONGODB_URI
+        fromGroup: shared-secrets
+        key: MONGODB_URI
+      - key: JWT_SECRET
+        fromGroup: shared-secrets
+        key: JWT_SECRET
+      - key: RAZORPAY_KEY_ID
+        fromGroup: shared-secrets
+        key: RAZORPAY_KEY_ID
+      - key: RAZORPAY_KEY_SECRET
+        fromGroup: shared-secrets
+        key: RAZORPAY_KEY_SECRET
+      - key: RAZORPAY_WEBHOOK_SECRET
+        fromGroup: shared-secrets
+        key: RAZORPAY_WEBHOOK_SECRET
+    autoDeploy: true
+
+  # Frontend Service
+  - type: web
+    name: taxsaas-client
+    env: docker
+    plan: free
+    dockerContext: client
+    dockerfilePath: client/Dockerfile
+    envVars:
+      - key: VITE_API_URL
+        value: https://taxsaas-server.onrender.com 
+    autoDeploy: true
+
+# Shared Environment Group (Secrets)
+envGroups:
+  - name: shared-secrets
+    envVars:
+      - key: MONGODB_URI
+        sync: false # User must enter manually in dashboard
+      - key: JWT_SECRET
+        generate: true
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false

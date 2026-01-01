@@ -1,0 +1,11 @@
+{
+  "welcome": "Welcome to TaxSaas Platform",
+  "login": "Login",
+  "register": "Register",
+  "dashboard": "Dashboard",
+  "incometax": "Income Tax",
+  "gst": "GST",
+  "logout": "Logout",
+  "theme": "Theme",
+  "language": "Language"
+}

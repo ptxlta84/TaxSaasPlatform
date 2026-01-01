@@ -1,0 +1,38 @@
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+/* Sizes (Approximating Tailwind constraints) */
+.container-sm {
+  max-width: 48rem; /* ~768px */
+}
+
+.container-md {
+  max-width: 64rem; /* ~1024px */
+}
+
+.container-lg {
+  max-width: 80rem; /* ~1280px */
+}
+
+.container-full {
+  max-width: 100%;
+}

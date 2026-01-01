@@ -1,0 +1,24 @@
+{
+  "welcome": "वापसी पर स्वागत है",
+  "dashboard": "डैशबोर्ड",
+  "file_itr": "आईटीआर भरें",
+  "tax_calculator": "कर कैलकुलेटर",
+  "support": "सहायता",
+  "logout": "लॉग आउट",
+  "start_filing": "नई फाइलिंग शुरू करें",
+  "continue_filing": "फाइलिंग जारी रखें",
+  "assessment_year": "मूल्यांकन वर्ष",
+  "financial_year": "वित्तीय वर्ष",
+  "nav": {
+      "overview": "अवलोकन",
+      "income_tax": "आयकर (ITR-1)",
+      "itr2_wizard": "ITR-2 विजार्ड",
+      "capital_gains": "पूँजीगत लाभ",
+      "house_property": "गृह संपत्ति",
+      "foreign_assets": "विदेशी संपत्ति",
+      "ca_services": "सीए सेवाएं",
+      "gst_registration": "जीएसटी पंजीकरण",
+      "upload_form16": "फॉर्म 16 अपलोड करें",
+      "settings": "सेटिंग्स"
+  }
+}

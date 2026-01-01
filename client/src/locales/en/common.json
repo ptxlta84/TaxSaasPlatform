@@ -1,0 +1,24 @@
+{
+  "welcome": "Welcome back",
+  "dashboard": "Dashboard",
+  "file_itr": "File ITR",
+  "tax_calculator": "Tax Calculator",
+  "support": "Support",
+  "logout": "Logout",
+  "start_filing": "Start New Filing",
+  "continue_filing": "Continue Filing",
+  "assessment_year": "Assessment Year",
+  "financial_year": "Financial Year",
+  "nav": {
+      "overview": "Overview",
+      "income_tax": "Income Tax (ITR-1)",
+      "itr2_wizard": "ITR-2 Wizard",
+      "capital_gains": "Capital Gains",
+      "house_property": "House Property",
+      "foreign_assets": "Foreign Assets",
+      "ca_services": "CA Services",
+      "gst_registration": "GST Registration",
+      "upload_form16": "Upload Form 16",
+      "settings": "Settings"
+  }
+}

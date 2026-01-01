@@ -1,0 +1,11 @@
+{
+  "gross_salary": "सकल वेतन",
+  "net_salary": "शुद्ध वेतन",
+  "deductions": "कटौतियां",
+  "taxable_income": "कर योग्य आय",
+  "income_tax": "आयकर",
+  "cess": "स्वास्थ्य और शिक्षा उपकर",
+  "total_liability": "कुल देयता",
+  "refund_due": "वापसी योग्य राशि",
+  "net_payable": "शुद्ध देय कर"
+}
