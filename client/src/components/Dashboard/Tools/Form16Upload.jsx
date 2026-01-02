@@ -50,12 +50,19 @@ const Form16Upload = () => {
       setError('');
       
       try {
-          const res = await taxService.uploadForm16(uploadedFile);
-          // Backend returns { message, data (saved DB obj), parsed (raw data) }
-          // We use 'parsed' for preview as it matches our schema
-          setParsedData(res.parsed); 
+          // 1. Get/Create User's ITR Draft ID
+          const itr = await taxService.startFiling('2024-2025');
+          const itrId = itr._id;
+
+          // 2. Upload to Cloudinary via Backend
+          const res = await taxService.uploadDocument(itrId, uploadedFile, 'form16');
+          
+          // 3. (Optional) In real app, we would trigger an OCR parse here
+          // For now, allow user to proceed
+          setParsedData({ fileUrl: res.newlyUploaded }); 
+
       } catch (err) {
-          setError('Failed to parse file. Please try again.');
+          setError('Upload failed. Please try again.');
           console.error(err);
           setFile(null);
       } finally {

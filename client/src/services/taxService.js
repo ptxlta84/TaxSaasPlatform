@@ -13,14 +13,29 @@ export const taxService = {
     return response.data;
   },
 
-  uploadForm16: async (file) => {
+  // Create or Get Draft ITR
+  startFiling: async (financialYear) => {
+    const response = await api.post('/itr/start', { financialYear });
+    return response.data;
+  },
+
+  // Generic Document Upload (Cloudinary)
+  uploadDocument: async (itrId, file, category) => {
     const formData = new FormData();
-    formData.append('file', file);
-    const response = await api.post('/tax/upload-form16', formData, {
+    formData.append('document', file);
+    formData.append('category', category);
+
+    const response = await api.post(`/itr/${itrId}/document`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     });
     return response.data;
+  },
+
+  uploadForm16: async (file) => {
+     // Legacy wrapper, calls uploadDocument internally after getting draft
+     // For now, we will assume we get a draft first. This will be refactored in the Component.
+     throw new Error("Use uploadDocument instead");
   }
 };
