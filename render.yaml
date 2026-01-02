@@ -35,17 +35,12 @@ services:
         value: https://taxsaas-server.onrender.com
     autoDeploy: true
 
-# Shared Environment Group (Secrets)
-envGroups:
+  # Shared Environment Group (Secrets)
   - name: shared-secrets
     envVars:
       - key: MONGODB_URI
-        sync: false # User must enter manually in dashboard
       - key: JWT_SECRET
         generate: true
       - key: RAZORPAY_KEY_ID
-        sync: false
       - key: RAZORPAY_KEY_SECRET
-        sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
-        sync: false
