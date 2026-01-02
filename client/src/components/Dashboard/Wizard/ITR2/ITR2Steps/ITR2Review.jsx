@@ -5,6 +5,9 @@ import UnifiedPaymentModal from '../../../Payment/UnifiedPaymentModal';
 import { calculateITR2Tax } from '../../../../services/itr2Engine'; // Assumption based on structure
 
 const ITR2Review = ({ formData, onBack, onSuccess }) => {
+    const [verificationMethod, setVerificationMethod] = useState('aadhaar_otp');
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
     const calculation = React.useMemo(() => {
         return calculateITR2Tax(formData);
     }, [formData]);

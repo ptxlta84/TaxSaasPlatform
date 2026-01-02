@@ -46,8 +46,8 @@ const HousePropertyCalculator = ({ data, updateData }) => {
         setProperties(newProps);
     };
 
-    const calculateHP = () => {
-        let selfOccupiedCount = 0;
+    useEffect(() => {
+        // let selfOccupiedCount = 0; // Removed unused
         let selfOccupiedInterest = 0;
 
         const calculatedProperties = properties.map(p => {
@@ -62,7 +62,7 @@ const HousePropertyCalculator = ({ data, updateData }) => {
             const totalInterest = interest + preInterest;
 
             if (p.propertyType === 'self_occupied') {
-                selfOccupiedCount++;
+                // selfOccupiedCount++; // Removed unused
                 gav = 0;
                 nav = 0;
                 stdDed = 0;
