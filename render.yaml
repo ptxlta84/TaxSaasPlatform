@@ -3,9 +3,8 @@ services:
   - type: web
     name: taxsaas-server
     env: node
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -13,7 +12,16 @@ services:
         value: 5000
       - key: VITE_API_URL
         value: https://taxsaas-server.onrender.com
-      - fromGroup: shared-secrets
+      - key: MONGODB_URI
+        fromGroup: shared-secrets
+      - key: JWT_SECRET
+        fromGroup: shared-secrets
+      - key: RAZORPAY_KEY_ID
+        fromGroup: shared-secrets
+      - key: RAZORPAY_KEY_SECRET
+        fromGroup: shared-secrets
+      - key: RAZORPAY_WEBHOOK_SECRET
+        fromGroup: shared-secrets
     autoDeploy: true
 
   # Frontend Service
