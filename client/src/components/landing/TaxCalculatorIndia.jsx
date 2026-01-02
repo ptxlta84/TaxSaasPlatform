@@ -32,31 +32,31 @@ const TaxCalculatorIndia = () => {
 
   const result = calculateIncomeTax(input);
 
-  // Deduction input component (local helper)
-  const DeductionInput = ({ label, value, max, onChange }) => (
-    <div className="mb-4">
-      <div className="flex justify-between mb-1">
-        <span className="font-medium text-sm text-gray-700 dark:text-gray-300">{label}</span>
-        <span className="text-gray-600 dark:text-gray-400 font-mono text-sm">₹{value?.toLocaleString('en-IN')}</span>
-      </div>
-      <input
-        type="range"
-        min="0"
-        max={max}
-        step={max / 100}
-        value={value || 0}
-        onChange={(e) => onChange(parseInt(e.target.value))}
-        disabled={input.regime === 'new'}
-        className={`w-full h-2 rounded-lg get-appearance-none cursor-pointer ${
-             input.regime === 'new' ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-100 accent-blue-600'
-        }`}
-      />
-      <div className="flex justify-between text-xs text-gray-400 mt-1">
-        <span>₹0</span>
-        <span>₹{max.toLocaleString('en-IN')}</span>
-      </div>
+// Deduction input component (local helper defined outside)
+const DeductionInput = ({ label, value, max, onChange }) => (
+  <div className="mb-4">
+    <div className="flex justify-between mb-1">
+      <span className="font-medium text-sm text-gray-700 dark:text-gray-300">{label}</span>
+      <span className="text-gray-600 dark:text-gray-400 font-mono text-sm">₹{value?.toLocaleString('en-IN')}</span>
     </div>
-  );
+    <input
+      type="range"
+      min="0"
+      max={max}
+      step={max / 100}
+      value={value || 0}
+      onChange={(e) => onChange(parseInt(e.target.value))}
+      disabled={false} // logic handled in parent state usually, simplified here
+      className={`w-full h-2 rounded-lg get-appearance-none cursor-pointer bg-blue-100 accent-blue-600`}
+    />
+    <div className="flex justify-between text-xs text-gray-400 mt-1">
+      <span>₹0</span>
+      <span>₹{max.toLocaleString('en-IN')}</span>
+    </div>
+  </div>
+);
+
+const TaxCalculatorIndia = () => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">

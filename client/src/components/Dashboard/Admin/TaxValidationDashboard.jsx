@@ -3,13 +3,8 @@ import { ShieldCheck, AlertTriangle, CheckCircle, XCircle, Layout, PieChart } fr
 import { RUN_VALIDATION } from '../../../services/taxValidationEngine';
 
 const TaxValidationDashboard = () => {
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState(() => RUN_VALIDATION());
     const [selectedSuite, setSelectedSuite] = useState('ALL');
-
-    useEffect(() => {
-        const res = RUN_VALIDATION();
-        setResults(res);
-    }, []);
 
     const suites = [...new Set(results.map(r => r.suite))];
     const filteredResults = selectedSuite === 'ALL' ? results : results.filter(r => r.suite === selectedSuite);

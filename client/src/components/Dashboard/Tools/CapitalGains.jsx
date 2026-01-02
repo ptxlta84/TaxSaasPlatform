@@ -28,7 +28,7 @@ const CapitalGains = ({ data, updateData }) => {
         return ciiMap[`${year}-01`] || 363;
     };
 
-    const calculateGains = () => {
+    const calculateGains = React.useCallback(() => {
         let stcgTotal = 0;
         let ltcgTotal = 0;
 
@@ -69,7 +69,7 @@ const CapitalGains = ({ data, updateData }) => {
         const tax = (stcgTotal * 0.15) + (ltcgTotal > 100000 ? (ltcgTotal - 100000) * 0.10 : 0);
 
         setSummary({ stcg: stcgTotal, ltcg: ltcgTotal, totalTax: tax });
-    };
+    }, [assets]); // Added dependency
 
     const updateAsset = (index, field, value) => {
         const newAssets = [...assets];
@@ -89,7 +89,7 @@ const CapitalGains = ({ data, updateData }) => {
 
     useEffect(() => {
         calculateGains();
-    }, [assets]);
+    }, [calculateGains]); // Added calculateGains to dependency
 
     return (
         <div className="max-w-6xl mx-auto pb-20">

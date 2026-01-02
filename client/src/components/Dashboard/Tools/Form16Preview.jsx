@@ -2,15 +2,16 @@ import React from 'react';
 import { Building2, FileText, CheckCircle, ArrowRight } from 'lucide-react';
 import Button from '../../Button/Button';
 
+// Helper Component (Outside parent)
+const InfoRow = ({ label, value, className = "" }) => (
+  <div className={`flex justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 ${className}`}>
+    <span className="text-gray-500 dark:text-gray-400">{label}</span>
+    <span className="font-medium text-gray-900 dark:text-white">{value}</span>
+  </div>
+);
+
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
   const { employer, salary, tds, financialYear } = data;
-
-  const InfoRow = ({ label, value, className = "" }) => (
-    <div className={`flex justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 ${className}`}>
-      <span className="text-gray-500 dark:text-gray-400">{label}</span>
-      <span className="font-medium text-gray-900 dark:text-white">{value}</span>
-    </div>
-  );
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

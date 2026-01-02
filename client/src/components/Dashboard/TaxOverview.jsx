@@ -6,6 +6,7 @@ import Button from '../Button/Button';
 
 const TaxOverview = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Mock Data (will come from API later)
   const currentFY = "2024-25";
