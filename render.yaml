@@ -13,16 +13,7 @@ services:
         value: 5000
       - key: VITE_API_URL
         value: https://taxsaas-server.onrender.com
-      - key: MONGODB_URI
-        fromGroup: shared-secrets
-      - key: JWT_SECRET
-        fromGroup: shared-secrets
-      - key: RAZORPAY_KEY_ID
-        fromGroup: shared-secrets
-      - key: RAZORPAY_KEY_SECRET
-        fromGroup: shared-secrets
-      - key: RAZORPAY_WEBHOOK_SECRET
-        fromGroup: shared-secrets
+      - fromGroup: shared-secrets
     autoDeploy: true
 
   # Frontend Service
