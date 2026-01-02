@@ -36,6 +36,7 @@ services:
     autoDeploy: true
 
   # Shared Environment Group (Secrets)
+envGroups:
   - name: shared-secrets
     envVars:
       - key: MONGODB_URI
