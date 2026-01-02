@@ -28,13 +28,41 @@ git push origin main
 
 ## Step 3: Configure Secrets
 
-Render will detect the `render.yaml` file and ask for the "Shared Secrets" defined in the Environment Group. You will see inputs for:
+Render will detect the `render.yaml` file and create an **Environment Group** called `shared-secrets`. You must manually enter the values for these secrets in the Render Dashboard.
 
-- **MONGODB_URI**: Your MongoDB connection string (e.g., from MongoDB Atlas).
+### 3a. Getting your MongoDB URI (Critical)
+
+1.  **Log in to MongoDB Atlas** and open your Cluster.
+2.  **Network Access**:
+    - Click "Network Access" in the sidebar.
+    - Click "Add IP Address".
+    - Select **"Allow Access from Anywhere"** (`0.0.0.0/0`). (Required because Render's IPs change dynamicall).
+3.  **Database Access**:
+    - Click "Database Access".
+    - Click "Add New Database User".
+    - **Username**: Enter a name (e.g., `tax-admin`).
+    - **Password**: Click "Autogenerate Secure Password" (and copy it!).
+    - **Database User Privileges**: Select **"Read and write to any database"**. (Critical: You must select this!).
+    - Click **Add User**.
+4.  **Get Connection String**:
+    - Click "Database" -> "Connect".
+    - Select **"Drivers"** (Node.js).
+    - Copy the connection string. It looks like:
+      `mongodb+srv://tax-admin:<password>@cluster0.12345.mongodb.net/?retryWrites=true&w=majority`
+    - **Replace `<password>`** with the actual password you created in step 3.
+
+### 3b. Entering Secrets in Render
+
+1.  Go to your Render Dashboard.
+2.  Find the **Environment Groups** tab at the top.
+3.  Select the `shared-secrets` group created by the blueprint (or create it if missing).
+4.  Add/Edit the following variables:
+
+- **MONGODB_URI**: Paste your full Atlas connection string.
 - **RAZORPAY_KEY_ID**: Your Razorpay Test Key ID.
 - **RAZORPAY_KEY_SECRET**: Your Razorpay Test Key Secret.
 - **RAZORPAY_WEBHOOK_SECRET**: Your Webhook Secret.
-- **JWT_SECRET**: (Auto-generated, leave blank if option exists, or type a random string).
+- **JWT_SECRET**: (Auto-generated if you leave it blank, or type a random string).
 
 ## Step 4: Deploy
 
