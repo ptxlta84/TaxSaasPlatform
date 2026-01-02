@@ -12,14 +12,7 @@ const HeroSection = () => {
 
   // ... (rest of the file until the return statement)
 
-            <div className="flex justify-center gap-4 pt-4">
-              <Button size="lg" className="shadow-xl shadow-primary-500/20" onClick={() => navigate('/login')}>
-                {content[activeUserType].cta} <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button size="lg" variant="ghost">
-                Calculate {activeUserType === 'business' ? 'GST' : 'Tax'}
-              </Button>
-            </div>
+
 
   const userTypes = [
     { id: 'salaried', label: 'Salaried Employee', icon: Briefcase },
