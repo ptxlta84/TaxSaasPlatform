@@ -15,19 +15,14 @@ services:
         value: https://taxsaas-server.onrender.com
       - key: MONGODB_URI
         fromGroup: shared-secrets
-        key: MONGODB_URI
       - key: JWT_SECRET
         fromGroup: shared-secrets
-        key: JWT_SECRET
       - key: RAZORPAY_KEY_ID
         fromGroup: shared-secrets
-        key: RAZORPAY_KEY_ID
       - key: RAZORPAY_KEY_SECRET
         fromGroup: shared-secrets
-        key: RAZORPAY_KEY_SECRET
       - key: RAZORPAY_WEBHOOK_SECRET
         fromGroup: shared-secrets
-        key: RAZORPAY_WEBHOOK_SECRET
     autoDeploy: true
 
   # Frontend Service
@@ -38,7 +33,7 @@ services:
     dockerfilePath: client/Dockerfile
     envVars:
       - key: VITE_API_URL
-        value: https://taxsaas-server.onrender.com 
+        value: https://taxsaas-server.onrender.com
     autoDeploy: true
 
 # Shared Environment Group (Secrets)
