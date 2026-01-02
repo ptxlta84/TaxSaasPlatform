@@ -8,9 +8,12 @@ import TestimonialsSection from '../components/landing/TestimonialsSection';
 import FAQSection from '../components/landing/FAQSection';
 import Container from '../components/Layout/Container';
 
+import LandingNavbar from '../components/landing/LandingNavbar';
+
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+      <LandingNavbar />
       {/* Hero with User Type Selector */}
       <HeroSection />
 

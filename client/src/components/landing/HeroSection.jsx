@@ -85,7 +85,7 @@ const HeroSection = () => {
             </p>
             
             <div className="flex justify-center gap-4 pt-4">
-              <Button size="lg" className="shadow-xl shadow-primary-500/20" onClick={() => navigate('/login')}>
+              <Button size="lg" className="shadow-xl shadow-primary-500/20" onClick={() => navigate('/register')}>
                 {content[activeUserType].cta} <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <Button size="lg" variant="ghost" onClick={() => navigate('/login')}>
