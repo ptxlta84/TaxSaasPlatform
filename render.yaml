@@ -34,7 +34,6 @@ services:
   - type: web
     name: taxsaas-client
     env: docker
-    env: docker
     dockerContext: client
     dockerfilePath: client/Dockerfile
     envVars:
