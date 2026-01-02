@@ -3,8 +3,8 @@ services:
   - type: web
     name: taxsaas-server
     env: node
-    plan: free
-    buildCommand: npm install && cd client && npm install && npm run build && cd ..
+    rootDir: server
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -34,7 +34,7 @@ services:
   - type: web
     name: taxsaas-client
     env: docker
-    plan: free
+    env: docker
     dockerContext: client
     dockerfilePath: client/Dockerfile
     envVars:
