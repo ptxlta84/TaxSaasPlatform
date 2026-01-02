@@ -5,10 +5,9 @@ import { paymentService } from '../../../services/paymentService'; // Existing s
 // No, existing service just calls API. We can reuse or extend.
 import api from '../../../services/authService'; // Direct API for custom endpoints if needed
 
-const UnifiedPaymentModal = ({ isOpen, onClose, amount, purpose, userDetails, onSuccess }) => {
-    if (!isOpen) return null;
-
     const [loading, setLoading] = useState(false);
+
+    if (!isOpen) return null;
     
     // Calculate GST if it's a Service Fee (Platform fee)
     // Assumption: If purpose is 'Tax Payment', no GST on the tax itself.

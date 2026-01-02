@@ -4,9 +4,6 @@ import Button from '../../Button/Button';
 import { bookingService } from '../../../services/bookingService';
 import { paymentService } from '../../../services/paymentService';
 
-const BookingModal = ({ isOpen, onClose, ca }) => {
-  if (!isOpen || !ca) return null;
-
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   
@@ -16,6 +13,8 @@ const BookingModal = ({ isOpen, onClose, ca }) => {
   const [type, setType] = useState('quick_review');
   const [duration, setDuration] = useState(30);
   const [paymentMethod, setPaymentMethod] = useState('UPI');
+
+  if (!isOpen || !ca) return null;
 
   // Pricing Logic
   const pricing = {

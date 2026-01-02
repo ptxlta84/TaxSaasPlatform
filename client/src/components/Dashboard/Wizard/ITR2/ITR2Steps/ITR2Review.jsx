@@ -2,48 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { FileText, CheckCircle, AlertCircle, Download, CreditCard } from 'lucide-react';
 import Button from '../../../../Button/Button';
 import UnifiedPaymentModal from '../../../Payment/UnifiedPaymentModal';
+import { calculateITR2Tax } from '../../../../services/itr2Engine'; // Assumption based on structure
 
 const ITR2Review = ({ formData, onBack, onSuccess }) => {
-    const [calculation, setCalculation] = useState(null);
-    const [verificationMethod, setVerificationMethod] = useState('aadhaar_otp');
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-
-    useEffect(() => {
-    // ... useEffect remains same
-
-    const handlePaymentSuccess = (details) => {
-        // alert("Payment Successful! Filing Return now...");
-        // Simulate API call result
-         const mockAck = {
-            ackNumber: `ACK-2024-${Math.floor(Math.random() * 10000000)}`,
-            filedAt: new Date().toLocaleString(),
-            status: 'verified' // or 'filed' based on flow
-        };
-        if (onSuccess) onSuccess(mockAck);
-    };
-    
-    // ... JSX ...
-
-                            <Button 
-                                className="w-full mt-4" 
-                                size="lg" 
-                                icon={calculation.final.payable > 0 ? CreditCard : CheckCircle}
-                                onClick={() => calculation.final.payable > 0 ? setIsPaymentModalOpen(true) : alert("Filing...")}
-                            >
-                                {calculation.final.payable > 0 ? 'Pay Now & File' : 'File ITR-2 Now'}
-                            </Button>
-                            
-                            {/* Payment Modal */}
-                            <UnifiedPaymentModal 
-                                isOpen={isPaymentModalOpen}
-                                onClose={() => setIsPaymentModalOpen(false)}
-                                amount={calculation.final.payable}
-                                purpose="ITR-2 Self Assessment Tax" // Note: Real tax payment usually via NSDL, here we simulate or treat as 'Filing Service' if amount is small
-                                userDetails={{ name: formData.personalDetails.name || 'User', email: 'user@example.com', mobile: '9876543210' }}
-                                onSuccess={handlePaymentSuccess}
-                            />
-        const calc = calculateITR2Tax(formData);
-        setCalculation(calc);
+    const calculation = React.useMemo(() => {
+        return calculateITR2Tax(formData);
     }, [formData]);
 
     if (!calculation) return <div>Calculating Taxes...</div>;
