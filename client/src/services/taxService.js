@@ -33,7 +33,7 @@ export const taxService = {
     return response.data;
   },
 
-  uploadForm16: async (file) => {
+  uploadForm16: async () => {
      // Legacy wrapper, calls uploadDocument internally after getting draft
      // For now, we will assume we get a draft first. This will be refactored in the Component.
      throw new Error("Use uploadDocument instead");
