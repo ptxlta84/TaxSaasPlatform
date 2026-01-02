@@ -139,6 +139,19 @@ const incomeTaxReturnSchema = new mongoose.Schema({
       isPrimaryInfo: { type: Boolean, default: true }
   },
 
+  // Uploaded Documents (Cloudinary)
+  documents: [{
+      category: { 
+          type: String, 
+          enum: ['form16', 'investment_proof', 'other'],
+          required: true
+      },
+      fileUrl: { type: String, required: true },
+      publicId: String, // Cloudinary Public ID for deletion
+      fileName: String,
+      uploadedAt: { type: Date, default: Date.now }
+  }],
+
   // Payment Info
   paymentStatus: {
       type: String,

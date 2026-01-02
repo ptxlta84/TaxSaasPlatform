@@ -232,3 +232,42 @@ exports.exportExcel = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Upload ITR Related Document (Form 16, etc.)
+// @route   POST /api/itr/:id/document
+// @access  Private
+exports.uploadDocument = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const { category } = req.body;
+        
+        const itr = await IncomeTaxReturn.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!itr) return res.status(404).json({ message: 'ITR not found' });
+
+        // Add document to ITR
+        itr.documents.push({
+            category: category || 'other',
+            fileUrl: req.file.path, // Cloudinary URL
+            publicId: req.file.filename,
+            fileName: req.file.originalname
+        });
+
+        await itr.save();
+
+        res.json({
+            message: 'Document Uploaded Successfully',
+            documents: itr.documents,
+            newlyUploaded: req.file.path
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
