@@ -15,6 +15,27 @@ const TaxOverview = () => {
   
   return (
     <div className="space-y-6">
+      {/* Client Registration Section */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          Client Registration
+        </h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            New to our platform? Create your taxpayer account to manage your taxes.
+          </p>
+          <button 
+            onClick={() => navigate('/auth/register/client')}
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+          >
+            Create New Client Account
+          </button>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+            Already have an account? <a href="/login" className="text-blue-600 hover:underline">Login here</a>
+          </p>
+        </div>
+      </div>
+
       {/* Welcome & Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Status Card */}

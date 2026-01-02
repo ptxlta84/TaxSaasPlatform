@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ClientRegistration from './pages/auth/ClientRegistration';
 import OTPVerification from './pages/auth/OTPVerification';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import TaxOverview from './components/Dashboard/TaxOverview';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/register/client" element={<ClientRegistration />} />
           <Route path="/otp-verify" element={<OTPVerification />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
