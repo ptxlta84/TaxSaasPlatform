@@ -57,7 +57,7 @@ const Login = () => {
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Or{' '}
               <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                start your 14-day free trial
+                create a new account
               </Link>
             </p>
           </div>
@@ -118,6 +118,13 @@ const Login = () => {
                   >
                     Sign in
                   </Button>
+                  
+                  <div className="mt-4 text-center">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Don't have an account? </span>
+                    <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 text-sm">
+                        Sign up
+                    </Link>
+                  </div>
                 </div>
               </form>
             </div>
