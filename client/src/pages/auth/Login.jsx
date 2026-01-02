@@ -119,11 +119,27 @@ const Login = () => {
                     Sign in
                   </Button>
                   
-                  <div className="mt-4 text-center">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Don't have an account? </span>
-                    <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 text-sm">
-                        Sign up
-                    </Link>
+                  <div className="mt-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">New to TaxSaas?</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="w-full justify-center"
+                        onClick={() => navigate('/register')}
+                      >
+                        Create New Client Account
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </form>
