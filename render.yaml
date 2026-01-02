@@ -2,8 +2,9 @@ services:
   - type: web
     name: taxsaas-server
     env: node
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -37,8 +38,12 @@ envGroups:
   - name: shared-secrets
     envVars:
       - key: MONGODB_URI
+        sync: false
       - key: JWT_SECRET
         generate: true
       - key: RAZORPAY_KEY_ID
+        sync: false
       - key: RAZORPAY_KEY_SECRET
+        sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
