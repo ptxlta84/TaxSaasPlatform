@@ -35,8 +35,6 @@ const ITR2Wizard = () => {
     };
 
     const steps = getSteps();
-    const currentStepObj = steps[currentStep - 1] || steps[0]; // Logic to map index to existing step
-
     // We need to map linear index (1,2,3...) to the dynamic array
     // A simple way is to render based on the step array index
     const activeStepIndex = currentStep - 1;

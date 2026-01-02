@@ -17,7 +17,6 @@ const IncomeTaxCalculatorDashboard = () => {
 
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
 
   // Initial Calculation

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, Search, Filter, Trash2, CheckSquare } from 'lucide-react';
 import Button from '../../Button/Button';
-import { useNavigate } from 'react-router-dom';
 
 const NotificationCenter = () => {
     const [filter, setFilter] = useState('ALL');

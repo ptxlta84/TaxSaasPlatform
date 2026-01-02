@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import Button from '../../../Button/Button';
 import { ChevronRight, ChevronLeft, Plus, Trash } from 'lucide-react';
 
 const PromoterDetails = ({ formData, updateFormData, onNext, onBack }) => {
-    const { register, control, handleSubmit, formState: { errors } } = useForm({
+    const { register, control, handleSubmit } = useForm({
         defaultValues: {
             promoters: formData.promoters.length > 0 ? formData.promoters : [{ name: '', designation: '', pan: '', mobile: '' }]
         }

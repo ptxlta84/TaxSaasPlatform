@@ -46,7 +46,7 @@ const ProcessFlow = () => {
           {/* Connector Line (Desktop) */}
           <div className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-gray-200 dark:bg-gray-700 -z-0"></div>
 
-          {steps.map((item, index) => {
+          {steps.map((item) => {
             const Icon = item.icon;
             return (
               <div key={item.step} className="relative z-10 flex flex-col items-center text-center group">

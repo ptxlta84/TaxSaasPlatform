@@ -10,8 +10,7 @@ const IncomeDetails = forwardRef(({ data, onChange }, ref) => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
-    watch
+    reset
   } = useForm({
     resolver: zodResolver(incomeSchema),
     defaultValues: data

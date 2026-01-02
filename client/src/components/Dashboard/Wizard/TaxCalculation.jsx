@@ -15,7 +15,7 @@ const TaxCalculation = ({ itrId }) => {
 
   useEffect(() => {
     if(itrId) triggerCalculation();
-  }, [itrId]);
+  }, [triggerCalculation, itrId]);
 
   const triggerCalculation = async () => {
     setLoading(true);

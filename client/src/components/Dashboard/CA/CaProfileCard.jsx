@@ -11,7 +11,6 @@ const CaProfileCard = ({ ca, onBook }) => {
     specializations, 
     experience, 
     location, 
-    languages,
     price 
   } = ca;
 

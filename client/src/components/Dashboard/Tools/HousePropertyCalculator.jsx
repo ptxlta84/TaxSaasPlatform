@@ -46,8 +46,7 @@ const HousePropertyCalculator = ({ data, updateData }) => {
         setProperties(newProps);
     };
 
-    useEffect(() => {
-        let total = 0;
+    const calculateHP = () => {
         let selfOccupiedCount = 0;
         let selfOccupiedInterest = 0;
 

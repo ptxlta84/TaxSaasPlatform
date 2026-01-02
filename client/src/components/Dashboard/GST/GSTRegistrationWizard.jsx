@@ -10,9 +10,9 @@ import PromoterDetails from './Steps/PromoterDetails';
 // import ReviewSubmit from './Steps/ReviewSubmit';
 
 const GSTRegistrationWizard = () => {
-    const navigate = useNavigate();
-    const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
+    // const navigate = useNavigate(); // Removed unused
+    const [activeStep, setActiveStep] = useState(0);
+    // const [loading, setLoading] = useState(false); // Removed unused
     const [formData, setFormData] = useState({
         legalName: '',
         tradeName: '',
