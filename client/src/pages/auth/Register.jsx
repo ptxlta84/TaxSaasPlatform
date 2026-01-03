@@ -30,6 +30,7 @@ const Register = () => {
       await registerUser({
         name: data.name,
         email: data.email,
+        mobile: data.mobile,
         password: data.password
       });
       navigate('/dashboard'); 
@@ -91,6 +92,14 @@ const Register = () => {
                   placeholder="john@example.com"
                   {...register('email')}
                   error={errors.email}
+                />
+
+                <FormInput
+                  label="Mobile Number"
+                  type="tel"
+                  placeholder="9876543210"
+                  {...register('mobile')}
+                  error={errors.mobile}
                 />
 
                 <FormInput
