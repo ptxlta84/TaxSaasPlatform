@@ -63,6 +63,9 @@ Render will detect the `render.yaml` file and create an **Environment Group** ca
 - **RAZORPAY_KEY_SECRET**: Your Razorpay Test Key Secret.
 - **RAZORPAY_WEBHOOK_SECRET**: Your Webhook Secret.
 - **JWT_SECRET**: (Auto-generated if you leave it blank, or type a random string).
+- **CLOUDINARY_CLOUD_NAME**: Your Cloudinary Cloud Name.
+- **CLOUDINARY_API_KEY**: Your Cloudinary API Key.
+- **CLOUDINARY_API_SECRET**: Your Cloudinary API Secret.
 
 ## Step 4: Deploy
 

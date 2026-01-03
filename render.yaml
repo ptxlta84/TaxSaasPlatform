@@ -23,6 +23,12 @@ services:
         fromGroup: shared-secrets
       - key: RAZORPAY_WEBHOOK_SECRET
         fromGroup: shared-secrets
+      - key: CLOUDINARY_CLOUD_NAME
+        fromGroup: shared-secrets
+      - key: CLOUDINARY_API_KEY
+        fromGroup: shared-secrets
+      - key: CLOUDINARY_API_SECRET
+        fromGroup: shared-secrets
     autoDeploy: true
 
   - type: web
@@ -47,4 +53,10 @@ envGroups:
       - key: RAZORPAY_KEY_SECRET
         sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
         sync: false
