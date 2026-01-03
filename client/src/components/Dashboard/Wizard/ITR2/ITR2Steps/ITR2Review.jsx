@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FileText, CheckCircle, AlertCircle, Download, CreditCard } from 'lucide-react';
 import Button from '../../../../Button/Button';
 import UnifiedPaymentModal from '../../../Payment/UnifiedPaymentModal';
-import { calculateITR2Tax } from '../../../../utils/taxCalculatorITR2';
+import { calculateITR2Tax } from '../../../../../utils/taxCalculatorITR2';
 
 const ITR2Review = ({ formData, onBack, onSuccess }) => {
     const [verificationMethod, setVerificationMethod] = useState('aadhaar_otp');

@@ -5,6 +5,7 @@ import { paymentService } from '../../../services/paymentService'; // Existing s
 // No, existing service just calls API. We can reuse or extend.
 import api from '../../../services/authService'; // Direct API for custom endpoints if needed
 
+const UnifiedPaymentModal = ({ isOpen, onClose, amount, purpose = 'General Payment', metadata = {} }) => {
     const [loading, setLoading] = useState(false);
 
     if (!isOpen) return null;
