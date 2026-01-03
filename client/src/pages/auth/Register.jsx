@@ -13,6 +13,7 @@ const Register = () => {
   const { register: registerUser } = useAuth(); // rename to avoid conflict with hook-form's register
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const {
     register,
@@ -26,14 +27,23 @@ const Register = () => {
     try {
       setLoading(true);
       setError('');
+      setSuccess('');
+      
       // Default to 'user' role for now. backend supports 'admin', 'user'
-      await registerUser({
+      const response = await registerUser({
         name: data.name,
         email: data.email,
         mobile: data.mobile,
         password: data.password
       });
-      navigate('/dashboard'); 
+      
+      setSuccess(response.message || 'Registration successful! Redirecting...');
+      
+      // Delay navigation to show success message
+      setTimeout(() => {
+        navigate('/dashboard'); 
+      }, 2000);
+      
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -72,6 +82,12 @@ const Register = () => {
             <div className="mt-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 
+                {success && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
+                    {success}
+                  </div>
+                )}
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                     {error}

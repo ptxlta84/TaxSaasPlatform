@@ -18,7 +18,7 @@ const generateTokenPair = (user) => {
 };
 
 // Send Token Response with Cookie
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
   const { accessToken, refreshToken } = generateTokenPair(user);
 
   // Cookie options
@@ -31,21 +31,18 @@ const sendTokenResponse = (user, statusCode, res) => {
     sameSite: 'strict' // CSRF protection
   };
 
-  // Save refresh token to database (hashed or plain depending on strategy, here plain for simplicity but can be hashed)
-  // user.refreshToken = refreshToken; 
-  // await user.save({ validateBeforeSave: false }); 
-  // Note: For advanced security, we should hash this. For now, we sign it.
-
   res
     .status(statusCode)
     .cookie('refreshToken', refreshToken, options)
     .json({
       success: true,
+      message,
       accessToken, // Only access token is sent in JSON
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
         role: user.role,
         userType: user.userType
       }
@@ -74,7 +71,7 @@ exports.register = async (req, res) => {
       taxRegime: req.body.taxRegime || null
     });
 
-    sendTokenResponse(user, 201, res);
+    sendTokenResponse(user, 201, res, 'Registration successful! Welcome aboard!');
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -93,7 +90,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    sendTokenResponse(user, 200, res);
+    sendTokenResponse(user, 200, res, 'Login successful! Welcome back!');
     
     // Log Success
     logAction({

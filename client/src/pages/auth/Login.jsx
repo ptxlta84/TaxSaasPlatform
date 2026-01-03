@@ -13,6 +13,7 @@ const Login = () => {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const {
     register,
@@ -26,8 +27,14 @@ const Login = () => {
     try {
       setLoading(true);
       setError('');
-      await login(data.email, data.password);
-      navigate('/dashboard'); 
+      setSuccess('');
+      const response = await login(data.email, data.password);
+      
+      setSuccess(response.message || 'Login successful! Redirecting...');
+      
+      setTimeout(() => {
+        navigate('/dashboard'); 
+      }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
@@ -66,6 +73,12 @@ const Login = () => {
             <div className="mt-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 
+                {success && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
+                    {success}
+                  </div>
+                )}
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                     {error}
