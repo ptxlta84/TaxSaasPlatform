@@ -4,6 +4,7 @@ import Button from '../../Button/Button';
 import { bookingService } from '../../../services/bookingService';
 import { paymentService } from '../../../services/paymentService';
 
+const BookingModal = ({ isOpen, ca, onClose }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   
