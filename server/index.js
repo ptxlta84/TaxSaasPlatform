@@ -14,6 +14,9 @@ connectDB();
 
 const app = express();
 
+// Trust Render's proxy (Required for Rate Limiting & Secure Cookies)
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet());
 const whitelist = ['http://localhost:5173', 'https://taxsaas-client.onrender.com'];
