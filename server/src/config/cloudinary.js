@@ -11,8 +11,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'taxsaas_documents',
-    allowed_formats: ['jpg', 'png', 'pdf'],
-    resource_type: 'auto', // Important for PDF support
+    allowedFormats: ['jpg', 'png', 'jpeg', 'pdf'], // Changed to camelCase
+    resource_type: 'auto', // Keep snake_case as it is often passed to API directly
   },
 });
 
