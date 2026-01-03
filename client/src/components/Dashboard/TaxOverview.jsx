@@ -93,12 +93,15 @@ const TaxOverview = () => {
              <h4 className="text-2xl font-bold text-gray-900 dark:text-white">₹0</h4>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div 
+            onClick={() => navigate('/dashboard/documents')}
+            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-300 transition-colors"
+          >
              <div className="flex justify-between items-start mb-2">
                  <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><FileText size={20} /></div>
                  <span className="text-xs font-semibold text-gray-400 uppercase">Documents</span>
              </div>
-             <h4 className="text-2xl font-bold text-gray-900 dark:text-white">0 Uploaded</h4>
+             <h4 className="text-2xl font-bold text-gray-900 dark:text-white">View All</h4>
           </div>
           
            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">

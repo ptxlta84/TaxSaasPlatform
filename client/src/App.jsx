@@ -19,6 +19,7 @@ import ForeignAssetsReporting from './components/Dashboard/Tools/ForeignAssetsRe
 import ITR2Wizard from './components/Dashboard/Wizard/ITR2/ITR2Wizard';
 import NotificationCenter from './components/Dashboard/Notifications/NotificationCenter';
 import NotificationPreferences from './components/Dashboard/Notifications/NotificationPreferences';
+import DocumentVault from './components/Dashboard/Documents/DocumentVault';
 import TaxValidationDashboard from './components/Dashboard/Admin/TaxValidationDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
@@ -49,6 +50,7 @@ function App() {
              <Route path="house-property" element={<HousePropertyCalculator />} />
              <Route path="foreign-assets" element={<ForeignAssetsReporting />} />
              <Route path="itr-2-filing" element={<ITR2Wizard />} />
+             <Route path="documents" element={<DocumentVault />} />
           </Route>
         </Routes>
       </Router>

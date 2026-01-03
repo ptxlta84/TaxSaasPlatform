@@ -10,6 +10,7 @@ const Sidebar = () => {
     
     const navItems = [
         { icon: LayoutDashboard, label: t('nav.overview'), path: '/dashboard' },
+        { icon: FileStack, label: 'My Documents', path: '/dashboard/documents' },
         { icon: Calculator, label: t('nav.income_tax'), path: '/dashboard/income-tax' },
         { icon: FileText, label: t('nav.itr2_wizard'), path: '/dashboard/itr-2-filing' },
         { icon: PieChart, label: t('nav.capital_gains'), path: '/dashboard/capital-gains' },
