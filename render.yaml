@@ -38,7 +38,7 @@ services:
     dockerfilePath: client/Dockerfile
     envVars:
       - key: VITE_API_URL
-        value: https://taxsaas-server.onrender.com
+        value: https://taxsaas-server.onrender.com/api
     autoDeploy: true
 
 envGroups:
