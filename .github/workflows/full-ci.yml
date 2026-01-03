@@ -121,14 +121,14 @@ jobs:
 
     steps:
       - name: Deploy Backend to Render
-        if: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+        if: secrets.RENDER_BACKEND_SERVICE_ID
         uses: johnbeynon/render-deploy-action@v0.0.8
         with:
           service-id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
           api-key: ${{ secrets.RENDER_API_KEY }}
 
       - name: Deploy Frontend to Render
-        if: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+        if: secrets.RENDER_FRONTEND_SERVICE_ID
         uses: johnbeynon/render-deploy-action@v0.0.8
         with:
           service-id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
