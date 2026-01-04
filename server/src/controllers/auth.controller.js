@@ -7,11 +7,16 @@ const crypto = require('crypto');
 
 // Generate Access and Refresh Tokens
 const generateTokenPair = (user) => {
+  if (!process.env.JWT_SECRET) {
+    console.error("FATAL: JWT_SECRET is missing during token generation!");
+    throw new Error("Internal Server Error: Missing JWT Configuration");
+  }
+
   const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: '15m', // Short-lived
   });
 
-  const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, {
+  const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret', {
     expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d',
   });
 
