@@ -80,7 +80,17 @@ exports.register = async (req, res) => {
 
     sendTokenResponse(user, 201, res, 'Registration successful! Welcome aboard!');
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    if (err.code === 11000) {
+        const field = Object.keys(err.keyPattern)[0];
+        const formattedField = field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
+        return res.status(400).json({ message: `${formattedField} is already registered` });
+    }
+    // Handle specific validation errors if they bubble up not caught by express-validator
+    if (err.name === 'ValidationError') {
+         const messages = Object.values(err.errors).map(val => val.message);
+         return res.status(400).json({ message: messages[0] });
+    }
+    res.status(500).json({ message: 'Server error during registration. Please try again.' });
   }
 };
 
