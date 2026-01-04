@@ -62,12 +62,16 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: errors.array()[0].msg });
   }
 
+  console.log("Registration attempt:", email, mobile); // Debug Log
+
   try {
     let user = await User.findOne({ email });
     if (user) {
+      console.log("Validation failed: User already exists"); // Debug Log
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    console.log("Saving user..."); // Debug Log
     user = await User.create({
       name,
       email,
@@ -81,6 +85,7 @@ exports.register = async (req, res) => {
     sendTokenResponse(user, 201, res, 'Registration successful! Welcome aboard!');
   } catch (err) {
     if (err.code === 11000) {
+        console.log("Duplicate detected:", err.keyValue); // Debug Log
         const field = Object.keys(err.keyPattern)[0];
         const formattedField = field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
         return res.status(400).json({ message: `${formattedField} is already registered` });
@@ -90,7 +95,7 @@ exports.register = async (req, res) => {
          const messages = Object.values(err.errors).map(val => val.message);
          return res.status(400).json({ message: messages[0] });
     }
-    console.error('Registration Error:', err.message);
+    console.error('Registration Error:', err); // Deep Debug Log
     res.status(500).json({ message: 'Server error during registration. Please try again.' });
   }
 };
