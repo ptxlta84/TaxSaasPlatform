@@ -12,7 +12,7 @@ const generateTokenPair = (user) => {
   });
 
   const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRE,
+    expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d',
   });
 
   return { accessToken, refreshToken };
@@ -90,6 +90,7 @@ exports.register = async (req, res) => {
          const messages = Object.values(err.errors).map(val => val.message);
          return res.status(400).json({ message: messages[0] });
     }
+    console.error('Registration Error:', err.message);
     res.status(500).json({ message: 'Server error during registration. Please try again.' });
   }
 };

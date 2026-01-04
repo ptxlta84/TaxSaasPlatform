@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   mobile: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
     // Validate Indian mobile number format (simple check)
     match: [/^[6-9]\d{9}$/, 'Please enter a valid Indian mobile number']
@@ -85,16 +86,11 @@ const userSchema = new mongoose.Schema({
 });
 
 // Pre-save hook to hash password
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
   
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Method to compare passwords
