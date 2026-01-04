@@ -5,6 +5,7 @@ import { Menu, X, Bell, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import NotificationBell from '../Dashboard/Notifications/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher';
+// import ThemeToggle from '../ThemeToggle';
 
 const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,17 +50,9 @@ const DashboardLayout = () => {
               <h1 className="text-xl font-semibold text-gray-800 dark:text-white md:hidden">TaxSaas</h1>
             </div>
 
-
-
-import LanguageSwitcher from '../LanguageSwitcher';
-// ... imports
-
-// ... inside render
-import ThemeToggle from '../ThemeToggle';
-// ...
             <div className="flex items-center gap-4">
                <LanguageSwitcher />
-               <ThemeToggle />
+{/* <ThemeToggle /> */}
                <NotificationBell />
                <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
