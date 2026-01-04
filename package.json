@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "concurrently \"npm run test --prefix server\" \"npm run test --prefix client\"",
+    "build": "npm run build --prefix client",
     "start": "concurrently \"npm run start --prefix server\" \"npm run dev --prefix client\""
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "concurrently": "^9.1.0",
+    "eslint": "^9.39.2"
   },
   "keywords": [],
   "author": "",
