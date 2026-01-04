@@ -10,6 +10,24 @@ const cookieParser = require('cookie-parser');
 dotenv.config();
 
 // Connect to database
+// Check critical environment variables
+console.log('Startup: Checking Environment Variables...');
+const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET']; // Critical for boot
+const missingEnv = requiredEnv.filter(key => !process.env[key]);
+
+if (missingEnv.length > 0) {
+    console.error('FATAL ERROR: Missing critical environment variables:', missingEnv.join(', '));
+    console.error('The server cannot start without these variables. Please configure them in Render dashboard.');
+    // We expect db.js to crash for mongo, but we warn here explicitly.
+} else {
+    console.log('✅ Critical environment variables are present.');
+}
+
+// Warn for encryption keys (Lazy loaded, but good to have)
+if (!process.env.ENCRYPTION_KEY || !process.env.ENCRYPTION_IV) {
+    console.warn('⚠️ WARNING: ENCRYPTION_KEY or ENCRYPTION_IV is missing. Encryption features will fail.');
+}
+
 connectDB();
 
 const app = express();
@@ -19,7 +37,12 @@ app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(helmet());
-const whitelist = ['http://localhost:5173', 'https://taxsaas-client.onrender.com'];
+const whitelist = [
+    'http://localhost:5173', 
+    'https://taxsaas-client.onrender.com',
+    'https://paytax.com',
+    'https://www.paytax.com'
+];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -72,4 +95,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(`PORT Binding: ${PORT}`); // Confirm port for Render
 });
