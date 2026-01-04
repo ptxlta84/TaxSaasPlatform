@@ -60,6 +60,7 @@ app.use('/api/bookings', require('./src/routes/booking.routes'));
 app.use('/api/gst', require('./src/routes/gst.routes'));
 // app.use('/api/compliance', require('./src/routes/compliance.routes'));
 app.use('/api/payments', require('./src/routes/payment.routes'));
+app.use('/api/admin', require('./src/routes/admin.routes')); // Admin Routes (RBAC)
 app.use('/api', require('./src/routes/health')); // Mount /health routes
 
 // Default Route
