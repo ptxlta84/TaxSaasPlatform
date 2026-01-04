@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const otpService = require('../services/otpService');
@@ -54,6 +55,12 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
 // @access  Public
 exports.register = async (req, res) => {
   const { name, email, password, mobile, userType, panNumber } = req.body;
+  
+  // Validate Request
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+  }
 
   try {
     let user = await User.findOne({ email });
