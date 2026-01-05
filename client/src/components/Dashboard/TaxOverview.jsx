@@ -1,122 +1,198 @@
-import React from 'react';
-import { FileText, Calendar, AlertCircle, UploadCloud, ArrowRight, DollarSign, Calculator } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../Button/Button';
+import { FileText, TrendingUp, AlertCircle, CheckCircle, ArrowRight, Download, Calculator, PiggyBank, Shield } from 'lucide-react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const TaxOverview = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Mock Data (will come from API later)
-  const currentFY = "2024-25";
-  const filingStatus = user?.filingStatus === 'filed' ? 'Filed' : 'Not Started';
-  const dueDate = "July 31, 2025";
-  
-  return (
-    <div className="space-y-6">
-      {/* Client Registration Section */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-          Client Registration
-        </h2>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            New to our platform? Create your taxpayer account to manage your taxes.
-          </p>
-          <button 
-            onClick={() => navigate('/auth/register/client')}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-          >
-            Create New Client Account
-          </button>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-            Already have an account? <a href="/login" className="text-blue-600 hover:underline">Login here</a>
-          </p>
-        </div>
-      </div>
+    const { user } = useAuth();
+    const [summary, setSummary] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-      {/* Welcome & Status */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Main Status Card */}
-        <div className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg relative overflow-hidden">
-           <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/3 -translate-y-1/3">
-              <FileText size={200} />
-           </div>
-           
-           <div className="relative z-10">
-             <div className="flex items-start justify-between mb-4">
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+    useEffect(() => {
+        fetchSummary();
+    }, []);
+
+    const fetchSummary = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/tax/summary`, {
+                headers: { 'x-auth-token': token }
+            });
+            setSummary(res.data);
+            setLoading(false);
+        } catch (err) {
+            console.error(err);
+            setLoading(false);
+        }
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(amount || 0);
+    };
+
+    if (loading) return <div className="p-8 text-center text-gray-500">Loading your tax summary...</div>;
+
+    const { grossTotalIncome, totalDeductionsClaimed, taxResult, completion } = summary || {};
+
+    return (
+        <div className="space-y-6">
+            {/* Header with Welcome and Progress */}
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold mb-1">Income Tax Return (ITR)</h2>
-                  <p className="text-blue-100">Financial Year {currentFY}</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        Welcome back, {user?.name || 'User'}!
+                    </h1>
+                    <p className="text-gray-500 text-sm mt-1">
+                        FY 2024-25 (AY 2025-26) Return Filing
+                    </p>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                    filingStatus === 'Filed' ? 'bg-green-400 text-green-900' : 'bg-orange-400 text-orange-900'
-                }`}>
-                    {filingStatus}
+                
+                {/* Progress Widget */}
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center gap-4 w-full md:w-auto shadow-sm">
+                    <div className="flex-1 md:w-48">
+                        <div className="flex justify-between text-xs mb-1">
+                            <span className="font-medium text-gray-700 dark:text-gray-300">Return Completeness</span>
+                            <span className="font-bold text-blue-600">{completion?.score}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-1000" 
+                                style={{ width: `${completion?.score}%` }}
+                            ></div>
+                        </div>
+                    </div>
                 </div>
-             </div>
-             
-             <div className="mt-8 flex gap-4">
-                <Button onClick={() => navigate('/dashboard/filing')} className="bg-white text-blue-600 hover:bg-blue-50 border-none">
-                    Start Filing Now <ArrowRight size={16} className="ml-2" />
-                </Button>
-                <Button onClick={() => navigate('/dashboard/upload-form16')} variant="outline" className="text-white border-white hover:bg-white/10">
-                    <UploadCloud size={16} className="mr-2" /> Upload Form 16
-                </Button>
-                <Button onClick={() => navigate('/dashboard/estimate')} variant="outline" className="text-white border-white hover:bg-white/10">
-                    <Calculator size={16} className="mr-2" /> Tax Estimator
-                </Button>
-             </div>
-           </div>
-        </div>
+            </header>
 
-        {/* Deadline Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-center">
-            <div className="flex items-center gap-3 mb-2 text-red-500 font-semibold">
-                <AlertCircle size={20} />
-                <span>Next Deadline</span>
+            {/* Central Summary Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Gross Income */}
+                <div className="bg-blue-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group hover:shadow-xl transition-shadow">
+                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <TrendingUp size={100} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                             <TrendingUp size={20} className="text-blue-200" />
+                            <h3 className="text-blue-100 font-medium text-sm uppercase">Gross Total Income</h3>
+                        </div>
+                        <p className="text-3xl font-bold tracking-tight">{formatCurrency(grossTotalIncome)}</p>
+                        <Link to="/dashboard/income-tax" className="inline-flex items-center gap-1 mt-4 text-xs font-semibold bg-blue-500/50 hover:bg-blue-500 px-3 py-1.5 rounded-full transition-colors">
+                            Manage Income <ArrowRight size={12} />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Deductions */}
+                <div className="bg-emerald-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group hover:shadow-xl transition-shadow">
+                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Shield size={100} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                             <Shield size={20} className="text-emerald-200" />
+                            <h3 className="text-emerald-100 font-medium text-sm uppercase">Chapter VI-A Deductions</h3>
+                        </div>
+                        <p className="text-3xl font-bold tracking-tight">{formatCurrency(totalDeductionsClaimed)}</p>
+                        <Link to="/dashboard/deductions" className="inline-flex items-center gap-1 mt-4 text-xs font-semibold bg-emerald-500/50 hover:bg-emerald-500 px-3 py-1.5 rounded-full transition-colors">
+                            Manage Deductions <ArrowRight size={12} />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Tax Liability - Dynamic */}
+                <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-6 text-white shadow-lg relative overflow-hidden border border-gray-700">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Calculator size={100} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                                <Calculator size={20} className="text-gray-400" />
+                                <h3 className="text-gray-400 font-medium text-sm uppercase">Proj. Tax Liability</h3>
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded font-bold ${
+                                taxResult?.recommendation === 'New Regime' ? 'bg-green-500 text-green-950' : 'bg-blue-500 text-white'
+                            }`}>
+                                {taxResult?.recommendation === 'New Regime' ? 'NEW REGIME' : 'OLD REGIME'}
+                            </span>
+                        </div>
+                        <p className="text-3xl font-bold tracking-tight">
+                            {formatCurrency(taxResult?.recommendation === 'New Regime' ? taxResult?.newRegime?.taxPayable : taxResult?.oldRegime?.taxPayable)}
+                        </p>
+                        
+                        {taxResult?.savings > 0 && (
+                            <p className="mt-2 text-sm text-green-400 flex items-center gap-1">
+                                <PiggyBank size={14} />
+                                Saving {formatCurrency(taxResult?.savings)} vs alternative
+                            </p>
+                        )}
+
+                        <Link to="/dashboard/estimate" className="inline-flex items-center gap-1 mt-4 text-xs font-semibold text-gray-400 hover:text-white transition-colors">
+                            View Detailed Breakdown <ArrowRight size={12} />
+                        </Link>
+                    </div>
+                </div>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{dueDate}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Due date for Individual ITR Filing (Non-Audit)</p>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-300">Days Remaining:</span>
-                <span className="font-bold text-gray-900 dark:text-white">214 Days</span>
+
+            {/* Quick Actions Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                 {/* Upload Form 16 */}
+                 <Link to="/dashboard/upload-form16" className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group">
+                    <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform mb-3">
+                        <Download size={20} />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Upload Form 16</h3>
+                    <p className="text-xs text-gray-500 mt-1">Auto-fill via PDF</p>
+                 </Link>
+
+                 {/* Income Sources */}
+                 <Link to="/dashboard/income-tax" className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group">
+                    <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform mb-3">
+                        <TrendingUp size={20} />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Income Sources</h3>
+                    <p className="text-xs text-gray-500 mt-1">Salary, House, Gains</p>
+                 </Link>
+
+                 {/* Deductions */}
+                 <Link to="/dashboard/deductions" className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group">
+                    <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform mb-3">
+                        <Shield size={20} />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Deductions</h3>
+                    <p className="text-xs text-gray-500 mt-1">80C, 80D, 80G</p>
+                 </Link>
+
+                 {/* File ITR */}
+                 <Link to="/dashboard/filing" className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group">
+                    <div className="w-10 h-10 bg-orange-50 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform mb-3">
+                        <FileText size={20} />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">File ITR Now</h3>
+                    <p className="text-xs text-gray-500 mt-1">Start e-filing flow</p>
+                 </Link>
+            </div>
+            
+            {/* Status Section */}
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" size={20} />
+                <div>
+                    <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">Filing Status: Pending</h4>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                        Your ITR for AY 2025-26 has not been filed yet. Please complete your profile and income details to proceed.
+                    </p>
+                </div>
             </div>
         </div>
-      </div>
-
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-             <div className="flex justify-between items-start mb-2">
-                 <div className="p-2 bg-green-100 text-green-600 rounded-lg"><DollarSign size={20} /></div>
-                 <span className="text-xs font-semibold text-gray-400 uppercase">Projected Refund</span>
-             </div>
-             <h4 className="text-2xl font-bold text-gray-900 dark:text-white">₹0</h4>
-          </div>
-
-          <div 
-            onClick={() => navigate('/dashboard/documents')}
-            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-300 transition-colors"
-          >
-             <div className="flex justify-between items-start mb-2">
-                 <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><FileText size={20} /></div>
-                 <span className="text-xs font-semibold text-gray-400 uppercase">Documents</span>
-             </div>
-             <h4 className="text-2xl font-bold text-gray-900 dark:text-white">View All</h4>
-          </div>
-          
-           <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-             <div className="flex justify-between items-start mb-2">
-                 <div className="p-2 bg-orange-100 text-orange-600 rounded-lg"><Calendar size={20} /></div>
-                 <span className="text-xs font-semibold text-gray-400 uppercase">Last Filed</span>
-             </div>
-             <h4 className="text-lg font-bold text-gray-900 dark:text-white">Never</h4>
-          </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default TaxOverview;

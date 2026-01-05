@@ -190,9 +190,80 @@ const estimateTax = async (req, res) => {
     }
 };
 
+// @desc    Get Comprehensive Tax Summary (Dashboard)
+// @route   GET /api/tax/summary
+// @access  Private
+const getTaxSummary = async (req, res) => {
+    try {
+        const IncomeDetails = require('../models/IncomeDetails');
+        const DeductionDetails = require('../models/DeductionDetails');
+        const TaxProfile = require('../models/TaxProfile');
+        const { calculateTax } = require('../utils/taxCalculator');
+
+        // 1. Fetch all required data in parallel
+        const [incomeData, deductionData, profileData] = await Promise.all([
+            IncomeDetails.findOne({ user: req.user.id }),
+            DeductionDetails.findOne({ user: req.user.id }),
+            TaxProfile.findOne({ user: req.user.id })
+        ]);
+
+        // 2. Process Age
+        let age = 30;
+        if (profileData && profileData.dateOfBirth) {
+             const dob = new Date(profileData.dateOfBirth);
+             const diffMs = Date.now() - dob.getTime();
+             const ageDate = new Date(diffMs); 
+             age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        // 3. Process Income
+        const grossTotalIncome = incomeData ? incomeData.grossTotalIncome : 0;
+
+        // 4. Process Deductions
+        const deductions = {
+            section80C: deductionData ? deductionData.section80C.total : 0,
+            section80D: deductionData ? deductionData.section80D.total : 0,
+            hra: 0, // Not explicitly tracked in deduction module yet, maybe part of salary allowances?
+            other: deductionData ? deductionData.otherDeductions.total : 0
+        };
+        const totalDeductionsClaimed = deductionData ? deductionData.grossTotalDeductions : 0;
+
+        // 5. Calculate Tax
+        const taxResult = calculateTax(
+            { grossTotalIncome, deductions },
+            { age }
+        );
+
+        // 6. Calculate Completion Score (Gamification)
+        let progress = 0;
+        if (profileData) progress += 30;
+        if (incomeData) progress += 40;
+        if (deductionData) progress += 30;
+
+        res.json({
+            grossTotalIncome,
+            totalDeductionsClaimed,
+            taxResult,
+            completion: {
+                score: progress,
+                steps: {
+                    profile: !!profileData,
+                    income: !!incomeData,
+                    deductions: !!deductionData
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 module.exports = {
     calculateAndSaveTax,
     getMyReturns,
     uploadForm16,
-    estimateTax
+    estimateTax,
+    getTaxSummary
 };
