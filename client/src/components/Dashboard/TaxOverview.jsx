@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Calendar, AlertCircle, UploadCloud, ArrowRight, DollarSign } from 'lucide-react';
+import { FileText, Calendar, AlertCircle, UploadCloud, ArrowRight, DollarSign, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button/Button';
@@ -63,6 +63,9 @@ const TaxOverview = () => {
                 </Button>
                 <Button onClick={() => navigate('/dashboard/upload-form16')} variant="outline" className="text-white border-white hover:bg-white/10">
                     <UploadCloud size={16} className="mr-2" /> Upload Form 16
+                </Button>
+                <Button onClick={() => navigate('/dashboard/estimate')} variant="outline" className="text-white border-white hover:bg-white/10">
+                    <Calculator size={16} className="mr-2" /> Tax Estimator
                 </Button>
              </div>
            </div>

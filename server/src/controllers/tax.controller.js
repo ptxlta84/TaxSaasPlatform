@@ -138,5 +138,61 @@ const uploadForm16 = async (req, res) => {
 module.exports = {
     calculateAndSaveTax,
     getMyReturns,
-    uploadForm16
+    uploadForm16,
+    estimateTax
+};
+
+// @desc    Get Quick Tax Estimate (Old vs New)
+// @route   POST /api/tax/estimate
+// @access  Private
+const estimateTax = async (req, res) => {
+    // Lazy load dependencies to avoid circular issues or just standard require
+    const { calculateTax } = require('../utils/taxCalculator');
+    const TaxProfile = require('../models/TaxProfile');
+    const { validationResult } = require('express-validator');
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // 1. Get User Profile for Age Calculation
+        const profile = await TaxProfile.findOne({ user: req.user.id });
+        
+        // Default to age 30 if no profile or DOB
+        let age = 30;
+        if (profile && profile.dateOfBirth) {
+            const dob = new Date(profile.dateOfBirth);
+            const diffMs = Date.now() - dob.getTime();
+            const ageDate = new Date(diffMs); 
+            age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        // 2. Extract Income Details from Request
+        const { grossIncome, otherIncome = 0, deductions80C = 0, deductions80D = 0, hra = 0, otherDeductions = 0 } = req.body;
+
+        const totalIncome = Number(grossIncome) + Number(otherIncome);
+        const deductionDetails = {
+            section80C: Number(deductions80C),
+            section80D: Number(deductions80D),
+            hra: Number(hra),
+            other: Number(otherDeductions)
+        };
+
+        // 3. Calculate
+        const result = calculateTax(
+            { grossTotalIncome: totalIncome, deductions: deductionDetails },
+            { age: age }
+        );
+
+        res.json({
+            profileUsed: { age },
+            result
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 };

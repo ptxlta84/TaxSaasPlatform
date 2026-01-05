@@ -21,6 +21,8 @@ import NotificationCenter from './components/Dashboard/Notifications/Notificatio
 import NotificationPreferences from './components/Dashboard/Notifications/NotificationPreferences';
 import DocumentVault from './components/Dashboard/Documents/DocumentVault';
 import TaxValidationDashboard from './components/Dashboard/Admin/TaxValidationDashboard';
+import TaxProfile from './components/Dashboard/Profile/TaxProfile';
+import TaxEstimator from './components/Dashboard/Tools/TaxEstimator';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -40,6 +42,8 @@ function App() {
             </ProtectedRoute>
           }>
              <Route index element={<TaxOverview />} />
+             <Route path="profile" element={<TaxProfile />} />
+             <Route path="estimate" element={<TaxEstimator />} />
              <Route path="income-tax" element={<IncomeTaxCalculatorDashboard />} />
              <Route path="upload-form16" element={<Form16Upload />} />
              <Route path="filing" element={<ITRWizard />} />

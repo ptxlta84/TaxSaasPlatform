@@ -1,242 +1,291 @@
 import React, { useState, useEffect } from 'react';
-import { Save, RefreshCw, Clock, ChevronRight, File, ArrowRight } from 'lucide-react';
-import { calculateIncomeTax }  from '../../../utils/taxCalculations/india2024';
-import { taxService } from '../../../services/taxService';
-import Button from '../../Button/Button';
-import FormInput from '../../Form/FormInput';
+import axios from 'axios';
+import { Tab } from '@headlessui/react';
+import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw } from 'lucide-react';
+// import TaxEstimator from './TaxEstimator.jsx';
+import { useAuth } from '../../../contexts/AuthContext';
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
 
 const IncomeTaxCalculatorDashboard = () => {
-  const [input, setInput] = useState({
-    regime: 'new',
-    income: 1200000,
-    age: '<60',
-    section80C: 150000,
-    section80D: 25000,
-    hra: 0
-  });
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
 
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [saveLoading, setSaveLoading] = useState(false);
-
-  // Initial Calculation
-  useEffect(() => {
-    const res = calculateIncomeTax({ ...input, standardDeduction: 50000 });
-    setResult(res);
-  }, [input]);
-
-  // Fetch History
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
-  const loadHistory = async () => {
-    try {
-      const data = await taxService.getHistory();
-      setHistory(data);
-    } catch (err) {
-      console.error("Failed to load history", err);
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      setSaveLoading(true);
-      await taxService.saveCalculation({
-        income: input.income,
-        ageGroup: input.age,
-        deductions: {
-            section80C: input.section80C,
-            section80D: input.section80D,
-            hra: input.hra
-        },
-        regime: input.regime,
-        calculatedResult: result // Saving the frontend result directly as per controller design
-      });
-      await loadHistory(); // Refresh history
-    } catch (err) {
-      console.error("Save failed", err);
-    } finally {
-      setSaveLoading(false);
-    }
-  };
-
-  const loadScenario = (savedItem) => {
-    setInput({
-        regime: savedItem.inputs.regime,
-        income: savedItem.inputs.income,
-        age: savedItem.inputs.ageGroup,
-        section80C: savedItem.inputs.deductions.section80C,
-        section80D: savedItem.inputs.deductions.section80D,
-        hra: savedItem.inputs.deductions.hra
+    const [incomeData, setIncomeData] = useState({
+        salary: { grossSalary: '', allowances: '' },
+        houseProperty: { type: 'self', incomeFromRent: '', municipalTaxes: '', interestOnLoan: '' },
+        business: { grossTurnover: '', netProfit: '', expenses: '' },
+        capitalGains: { shortTerm: '', longTerm: '' },
+        otherSources: { savingsInterest: '', fdInterest: '', dividend: '', other: '' }
     });
-  };
 
-  return (
-    <div className="grid lg:grid-cols-3 gap-8">
-      {/* Calculator Area */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tax Calculator (FY 24-25)</h2>
-                <div className="flex gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                    <button 
-                        onClick={() => setInput({...input, regime: 'old'})}
-                        className={`px-3 py-1 text-sm font-medium rounded-md transition ${input.regime === 'old' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
-                    >
-                        Old Method
-                    </button>
-                    <button 
-                         onClick={() => setInput({...input, regime: 'new'})}
-                         className={`px-3 py-1 text-sm font-medium rounded-md transition ${input.regime === 'new' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
-                    >
-                        New Method
-                    </button>
-                </div>
-             </div>
+    const [totals, setTotals] = useState({
+        salary: 0, houseProperty: 0, business: 0, capitalGains: 0, otherSources: 0, grossTotal: 0
+    });
 
-             <div className="grid md:grid-cols-2 gap-6 mb-6">
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+    useEffect(() => {
+        fetchIncomeDetails();
+    }, []);
+
+    // Auto-calculate totals on change
+    useEffect(() => {
+        calculateTotals();
+    }, [incomeData]);
+
+    const fetchIncomeDetails = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/income`, {
+                headers: { 'x-auth-token': token }
+            });
+            if (res.data && !res.data.isNew) {
+                // Merge with defaults to handle partial updates
+                setIncomeData(prev => ({
+                    salary: { ...prev.salary, ...res.data.salary },
+                    houseProperty: { ...prev.houseProperty, ...res.data.houseProperty },
+                    business: { ...prev.business, ...res.data.business },
+                    capitalGains: { ...prev.capitalGains, ...res.data.capitalGains },
+                    otherSources: { ...prev.otherSources, ...res.data.otherSources }
+                }));
+            }
+            setLoading(false);
+        } catch (err) {
+            console.error('Failed to fetch income details', err);
+            setLoading(false);
+        }
+    };
+
+    const calculateTotals = () => {
+        const salaryNet = Math.max(0, Number(incomeData.salary.grossSalary) - Number(incomeData.salary.allowances));
+        
+        let houseNet = 0;
+        if (incomeData.houseProperty.type === 'let-out') {
+            const nav = Math.max(0, Number(incomeData.houseProperty.incomeFromRent) - Number(incomeData.houseProperty.municipalTaxes));
+            const stdDed = nav * 0.3;
+            houseNet = nav - stdDed - Number(incomeData.houseProperty.interestOnLoan);
+        } else {
+            houseNet = Math.max(-200000, -Number(incomeData.houseProperty.interestOnLoan));
+        }
+
+        const businessNet = Number(incomeData.business.netProfit);
+        const gainsNet = Number(incomeData.capitalGains.shortTerm) + Number(incomeData.capitalGains.longTerm);
+        const otherNet = Number(incomeData.otherSources.savingsInterest) + 
+                         Number(incomeData.otherSources.fdInterest) + 
+                         Number(incomeData.otherSources.dividend) + 
+                         Number(incomeData.otherSources.other);
+
+        setTotals({
+            salary: salaryNet,
+            houseProperty: houseNet,
+            business: businessNet,
+            capitalGains: gainsNet,
+            otherSources: otherNet,
+            grossTotal: salaryNet + houseNet + businessNet + gainsNet + otherNet
+        });
+    };
+
+    const handleChange = (section, field, value) => {
+        setIncomeData(prev => ({
+            ...prev,
+            [section]: { ...prev[section], [field]: value }
+        }));
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_URL}/income`, incomeData, {
+                headers: { 'x-auth-token': token }
+            });
+            // Show toast or alert
+            alert('Income details saved successfully!');
+        } catch (err) {
+            console.error('Save failed', err);
+            alert('Failed to save details.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const categories = [
+        { name: 'Salary', icon: Briefcase, color: 'text-blue-500' },
+        { name: 'House Property', icon: Home, color: 'text-green-500' },
+        { name: 'Business/Profession', icon: TrendingUp, color: 'text-purple-500' },
+        { name: 'Capital Gains', icon: PieChart, color: 'text-orange-500' },
+        { name: 'Other Sources', icon: DollarSign, color: 'text-teal-500' },
+    ];
+
+    if (loading) return <div className="p-8 text-center">Loading income details...</div>;
+
+    return (
+        <div className="max-w-7xl mx-auto space-y-6">
+            <header className="flex justify-between items-center">
                 <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Income</label>
-                     <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
-                        <input 
-                            type="number" 
-                            value={input.income}
-                            onChange={e => setInput({...input, income: Number(e.target.value)})}
-                            className="w-full pl-8 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                        />
-                     </div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Income Sources (FY 2024-25)</h2>
+                    <p className="text-sm text-gray-500">Provide details for accurate tax calculation</p>
                 </div>
-                <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age Group</label>
-                     <select 
-                        value={input.age}
-                        onChange={e => setInput({...input, age: e.target.value})}
-                        className="w-full py-2 px-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                     >
-                        <option value="<60">Below 60</option>
-                        <option value="60-80">60 - 80</option>
-                        <option value=">80">Above 80</option>
-                     </select>
+                <div className="flex gap-4 items-center">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <span className="text-xs text-gray-500 uppercase font-semibold">Gross Total Income</span>
+                        <div className="text-xl font-bold text-blue-700 dark:text-blue-300">
+                            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totals.grossTotal)}
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                    >
+                        {saving ? <RefreshCw className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        Save Changes
+                    </button>
                 </div>
-             </div>
+            </header>
 
-            {/* Deductions (conditionally disabled for new regime visual cue, though technically some allowed) */}
-            <div className={`space-y-4 border-t pt-4 ${input.regime === 'new' ? 'opacity-50 grayscale' : ''}`}>
-                 <h3 className="font-medium text-gray-900 dark:text-white">Deductions (Old Regime)</h3>
-                 <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="text-xs text-gray-500">80C (LIC/PPF)</label>
-                        <input 
-                            type="number" 
-                            disabled={input.regime === 'new'}
-                            value={input.section80C}
-                            onChange={e => setInput({...input, section80C: Number(e.target.value)})}
-                            className="w-full mt-1 py-1.5 px-3 border rounded text-sm dark:bg-gray-700 dark:border-gray-600"
-                        />
-                    </div>
-                     <div>
-                        <label className="text-xs text-gray-500">80D (Health)</label>
-                        <input 
-                            type="number" 
-                            disabled={input.regime === 'new'}
-                            value={input.section80D}
-                            onChange={e => setInput({...input, section80D: Number(e.target.value)})}
-                            className="w-full mt-1 py-1.5 px-3 border rounded text-sm dark:bg-gray-700 dark:border-gray-600"
-                        />
-                    </div>
-                     <div>
-                        <label className="text-xs text-gray-500">HRA</label>
-                        <input 
-                            type="number" 
-                            disabled={input.regime === 'new'}
-                            value={input.hra}
-                            onChange={e => setInput({...input, hra: Number(e.target.value)})}
-                            className="w-full mt-1 py-1.5 px-3 border rounded text-sm dark:bg-gray-700 dark:border-gray-600"
-                        />
-                    </div>
-                 </div>
-            </div>
-             
-             <div className="mt-8 flex gap-3">
-                <Button onClick={handleSave} isLoading={saveLoading} className="flex items-center gap-2">
-                    <Save size={16} /> Save Scenario
-                </Button>
-                <Button variant="outline" onClick={() => setInput({...input, income: 0})} className="border-gray-300 text-gray-600">
-                    <RefreshCw size={16} /> Reset
-                </Button>
-             </div>
-        </div>
-      </div>
+            <Tab.Group selectedIndex={activeTab} onChange={setActiveTab}>
+                <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/10 p-1">
+                    {categories.map((category) => (
+                        <Tab
+                            key={category.name}
+                            className={({ selected }) =>
+                                classNames(
+                                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+                                    'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
+                                    selected
+                                        ? 'bg-white text-blue-700 shadow dark:bg-gray-800 dark:text-blue-400'
+                                        : 'text-gray-600 hover:bg-white/[0.12] hover:text-blue-600 dark:text-gray-400'
+                                )
+                            }
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <category.icon className="w-4 h-4" />
+                                <span className="hidden sm:inline">{category.name}</span>
+                            </div>
+                        </Tab>
+                    ))}
+                </Tab.List>
 
-      {/* Results & History Sidebar */}
-      <div className="space-y-6">
-        {/* Real-time Result Card */}
-        <div className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-xl p-6 text-white shadow-lg">
-            <h3 className="text-blue-200 text-sm font-medium mb-1">Estimated Tax Payable</h3>
-            <div className="text-4xl font-bold mb-4">
-                ₹{result?.totalTax?.toLocaleString('en-IN') || 0}
-            </div>
+                <Tab.Panels className="mt-2">
+                    {/* Salary Panel */}
+                    <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Salary</label>
+                                <input type="number" value={incomeData.salary.grossSalary} onChange={(e) => handleChange('salary', 'grossSalary', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Allowances (HRA, LTA etc.)</label>
+                                <input type="number" value={incomeData.salary.allowances} onChange={(e) => handleChange('salary', 'allowances', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div className="md:col-span-2 pt-4 border-t dark:border-gray-700">
+                                <p className="text-sm text-gray-500">Net Salary: <span className="font-bold text-gray-900 dark:text-white">{totals.salary}</span></p>
+                            </div>
+                        </div>
+                    </Tab.Panel>
+
+                    {/* House Property Panel */}
+                    <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Type</label>
+                                <select value={incomeData.houseProperty.type} onChange={(e) => handleChange('houseProperty', 'type', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border">
+                                    <option value="self">Self Occupied</option>
+                                    <option value="let-out">Let Out</option>
+                                </select>
+                            </div>
+                            {incomeData.houseProperty.type === 'let-out' && (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Annual Rent Received</label>
+                                        <input type="number" value={incomeData.houseProperty.incomeFromRent} onChange={(e) => handleChange('houseProperty', 'incomeFromRent', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Municipal Taxes Paid</label>
+                                        <input type="number" value={incomeData.houseProperty.municipalTaxes} onChange={(e) => handleChange('houseProperty', 'municipalTaxes', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                                    </div>
+                                </>
+                            )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Interest on Home Loan</label>
+                                <input type="number" value={incomeData.houseProperty.interestOnLoan} onChange={(e) => handleChange('houseProperty', 'interestOnLoan', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                                <p className="text-xs text-gray-500 mt-1">Max 2L deduction for Self Occupied</p>
+                            </div>
+                             <div className="md:col-span-2 pt-4 border-t dark:border-gray-700">
+                                <p className="text-sm text-gray-500">Net Annual Value / Loss: <span className="font-bold text-gray-900 dark:text-white">{totals.houseProperty}</span></p>
+                            </div>
+                        </div>
+                    </Tab.Panel>
+
+                    {/* Business Panel */}
+                    <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Turnover</label>
+                                <input type="number" value={incomeData.business.grossTurnover} onChange={(e) => handleChange('business', 'grossTurnover', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Net Profit / Presumptive Income</label>
+                                <input type="number" value={incomeData.business.netProfit} onChange={(e) => handleChange('business', 'netProfit', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                         </div>
+                    </Tab.Panel>
+
+                    {/* Capital Gains Panel */}
+                    <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Short Term Capital Gains (STCG)</label>
+                                <input type="number" value={incomeData.capitalGains.shortTerm} onChange={(e) => handleChange('capitalGains', 'shortTerm', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Long Term Capital Gains (LTCG)</label>
+                                <input type="number" value={incomeData.capitalGains.longTerm} onChange={(e) => handleChange('capitalGains', 'longTerm', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                         </div>
+                    </Tab.Panel>
+
+                    {/* Other Sources Panel */}
+                    <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Savings Bank Interest</label>
+                                <input type="number" value={incomeData.otherSources.savingsInterest} onChange={(e) => handleChange('otherSources', 'savingsInterest', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">FD / Term Deposit Interest</label>
+                                <input type="number" value={incomeData.otherSources.fdInterest} onChange={(e) => handleChange('otherSources', 'fdInterest', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dividend Income</label>
+                                <input type="number" value={incomeData.otherSources.dividend} onChange={(e) => handleChange('otherSources', 'dividend', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Other Income</label>
+                                <input type="number" value={incomeData.otherSources.other} onChange={(e) => handleChange('otherSources', 'other', e.target.value)} className="mt-1 w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 p-2 border" />
+                            </div>
+                         </div>
+                    </Tab.Panel>
+                </Tab.Panels>
+            </Tab.Group>
             
-            <div className="space-y-2 text-sm text-blue-100 border-t border-blue-800 pt-4">
-                <div className="flex justify-between">
-                    <span>Taxable Income</span>
-                    <span>₹{result?.taxableIncome?.toLocaleString('en-IN') || 0}</span>
+            {/* Quick Estimate Card */}
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Tax Estimate (Based on Input above)</h3>
+                <p className="text-sm text-gray-500 mb-4">Click Calculate to see tax liability for <strong>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totals.grossTotal)}</strong></p>
+                {/* Note: In a real app we'd pass props to TaxEstimator to pre-fill */}
+                <div className="text-xs text-blue-600 cursor-pointer hover:underline" onClick={() => document.getElementById('tax-estimator-section').scrollIntoView()}>
+                    Go to detailed estimator
                 </div>
-                <div className="flex justify-between">
-                    <span>Base Tax</span>
-                    <span>₹{result?.tax?.toLocaleString('en-IN') || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                    <span>Cess (4%)</span>
-                    <span>₹{result?.cess?.toLocaleString('en-IN') || 0}</span>
-                </div>
-            </div>
-             
-             {result?.regimeRecommendation && (
-                 <div className="mt-4 bg-white/10 p-3 rounded-lg text-xs">
-                    💡 Benefit: {result.regimeRecommendation.message}
-                 </div>
-             )}
-        </div>
-
-        {/* History List */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Clock size={16} /> Saved Checks
-                </h3>
-            </div>
-            <div className="max-h-64 overflow-y-auto">
-                {history.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-gray-500">No saved history yet</div>
-                ) : (
-                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                        {history.map((item) => (
-                            <button 
-                                key={item._id}
-                                onClick={() => loadScenario(item)}
-                                className="w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition flex justify-between items-center group"
-                            >
-                                <div>
-                                    <div className="font-medium text-gray-900 dark:text-white">
-                                        ₹{item.calculationResult?.totalTax?.toLocaleString('en-IN')}
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-0.5">
-                                        On {new Date(item.createdAt).toLocaleDateString()} • {item.inputs.regime === 'new' ? 'New' : 'Old'}
-                                    </div>
-                                </div>
-                                <ChevronRight size={16} className="text-gray-400 group-hover:text-blue-500" />
-                            </button>
-                        ))}
-                    </div>
-                )}
             </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default IncomeTaxCalculatorDashboard;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Calculator, PieChart, Settings, LogOut, FileStack, Home, Globe, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, Calculator, PieChart, Settings, LogOut, FileStack, Home, Globe, Users, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,8 @@ const Sidebar = () => {
     
     const navItems = [
         { icon: LayoutDashboard, label: t('nav.overview'), path: '/dashboard' },
+        { icon: User, label: 'Tax Profile', path: '/dashboard/profile' },
+        { icon: Calculator, label: 'Tax Estimator', path: '/dashboard/estimate' },
         { icon: FileStack, label: 'My Documents', path: '/dashboard/documents' },
         { icon: Calculator, label: t('nav.income_tax'), path: '/dashboard/income-tax' },
         { icon: FileText, label: t('nav.itr2_wizard'), path: '/dashboard/itr-2-filing' },
