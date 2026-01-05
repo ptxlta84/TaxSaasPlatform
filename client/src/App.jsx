@@ -8,6 +8,7 @@ import OTPVerification from './pages/auth/OTPVerification';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import TaxOverview from './components/Dashboard/TaxOverview';
 import IncomeTaxCalculatorDashboard from './components/Dashboard/Tools/IncomeTaxCalculatorDashboard';
+import DeductionsTracker from './components/Dashboard/Tools/DeductionsTracker';
 import Form16Upload from './components/Dashboard/Tools/Form16Upload';
 import ITRWizard from './components/Dashboard/Wizard/ITRWizard';
 import CaMarketplace from './components/Dashboard/CA/CaMarketplace';
@@ -45,6 +46,7 @@ function App() {
              <Route path="profile" element={<TaxProfile />} />
              <Route path="estimate" element={<TaxEstimator />} />
              <Route path="income-tax" element={<IncomeTaxCalculatorDashboard />} />
+             <Route path="deductions" element={<DeductionsTracker />} />
              <Route path="upload-form16" element={<Form16Upload />} />
              <Route path="filing" element={<ITRWizard />} />
              <Route path="ca-services" element={<CaMarketplace />} />

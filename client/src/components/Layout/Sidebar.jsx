@@ -14,6 +14,7 @@ const Sidebar = () => {
         { icon: Calculator, label: 'Tax Estimator', path: '/dashboard/estimate' },
         { icon: FileStack, label: 'My Documents', path: '/dashboard/documents' },
         { icon: Calculator, label: t('nav.income_tax'), path: '/dashboard/income-tax' },
+        { icon: FileText, label: 'Deductions (80C/80D)', path: '/dashboard/deductions' },
         { icon: FileText, label: t('nav.itr2_wizard'), path: '/dashboard/itr-2-filing' },
         { icon: PieChart, label: t('nav.capital_gains'), path: '/dashboard/capital-gains' },
         { icon: Home, label: t('nav.house_property'), path: '/dashboard/house-property' },

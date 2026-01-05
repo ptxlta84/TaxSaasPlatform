@@ -86,6 +86,7 @@ app.use('/api/payments', require('./src/routes/payment.routes'));
 app.use('/api/tax-profile', require('./src/routes/taxProfile.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes')); // Admin Routes (RBAC)
 app.use('/api/income', require('./src/routes/income.routes'));
+app.use('/api/deductions', require('./src/routes/deduction.routes'));
 app.use('/api', require('./src/routes/health')); // Mount /health routes
 
 // Default Route
