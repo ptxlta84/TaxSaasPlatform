@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { check } = require('express-validator');
-const { protect } = require('../middleware/auth');
+const { protect } = require('../middleware/auth.middleware');
 const { getProfile, createOrUpdateProfile } = require('../controllers/taxProfile.controller');
 
 // @route   GET /api/tax-profile

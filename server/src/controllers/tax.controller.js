@@ -135,13 +135,6 @@ const uploadForm16 = async (req, res) => {
     }
 };
 
-module.exports = {
-    calculateAndSaveTax,
-    getMyReturns,
-    uploadForm16,
-    estimateTax
-};
-
 // @desc    Get Quick Tax Estimate (Old vs New)
 // @route   POST /api/tax/estimate
 // @access  Private
@@ -195,4 +188,11 @@ const estimateTax = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
+};
+
+module.exports = {
+    calculateAndSaveTax,
+    getMyReturns,
+    uploadForm16,
+    estimateTax
 };
