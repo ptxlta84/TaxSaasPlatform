@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/auth/Login';
@@ -25,6 +25,10 @@ import TaxValidationDashboard from './components/Dashboard/Admin/TaxValidationDa
 import TaxProfile from './components/Dashboard/Profile/TaxProfile';
 import TaxEstimator from './components/Dashboard/Tools/TaxEstimator';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './components/Layout/AdminLayout';
+import AdminDashboard from './components/Dashboard/Admin/AdminDashboard';
+import UserManagement from './components/Dashboard/Admin/UserManagement';
 import './App.css';
 
 function App() {
@@ -57,6 +61,17 @@ function App() {
              <Route path="foreign-assets" element={<ForeignAssetsReporting />} />
              <Route path="itr-2-filing" element={<ITR2Wizard />} />
              <Route path="documents" element={<DocumentVault />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
         </Routes>
       </Router>
