@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Tab } from '@headlessui/react';
-import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw } from 'lucide-react';
+import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw, Upload } from 'lucide-react';
 // import TaxEstimator from './TaxEstimator.jsx';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -114,6 +114,48 @@ const IncomeTaxCalculatorDashboard = () => {
         }
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Basic validation
+        if (file.type !== 'application/pdf') {
+            alert('Please upload a PDF file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setLoading(true); // Reuse loading or create specific uploadLoading state
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post(`${API_URL}/income/upload-form16`, formData, {
+                headers: { 
+                    'x-auth-token': token,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            // Update state with extracted data
+            if (res.data.updatedIncome) {
+                 setIncomeData(prev => ({
+                    ...prev,
+                    salary: { ...prev.salary, ...res.data.updatedIncome.salary },
+                    // Potentially other fields if parser supports them later
+                }));
+                alert('Success! Form-16 parsed and data auto-filled.');
+            }
+        } catch (err) {
+            console.error('Upload failed', err);
+            alert('Failed to process Form-16. Please try again.');
+        } finally {
+            setLoading(false);
+            // Reset input
+            e.target.value = null; 
+        }
+    };
+
     const categories = [
         { name: 'Salary', icon: Briefcase, color: 'text-blue-500' },
         { name: 'House Property', icon: Home, color: 'text-green-500' },
@@ -175,6 +217,20 @@ const IncomeTaxCalculatorDashboard = () => {
                 <Tab.Panels className="mt-2">
                     {/* Salary Panel */}
                     <Tab.Panel className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm ring-white/60 focus:outline-none">
+                        <div className="mb-6 flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                            <div>
+                                <h4 className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                                    <Briefcase size={18} /> Auto-Fill from Form-16
+                                </h4>
+                                <p className="text-xs text-blue-600 dark:text-blue-400">Upload your Form-16 PDF to instantly populate salary details.</p>
+                            </div>
+                            <label className="cursor-pointer flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                                <Upload size={16} />
+                                Upload PDF
+                                <input type="file" accept=".pdf" className="hidden" onChange={handleFileUpload} />
+                            </label>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Salary</label>
