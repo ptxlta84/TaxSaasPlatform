@@ -18,7 +18,7 @@ const UserManagement = () => {
     const [detailLoading, setDetailLoading] = useState(false);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('accessToken'); 
 
     useEffect(() => {
         fetchUsers();
@@ -30,7 +30,7 @@ const UserManagement = () => {
              // Debounce search ideal, but keep simple for now
             const res = await axios.get(`${API_URL}/admin/users`, {
                 params: { page, limit: 10, search },
-                headers: { 'x-auth-token': token }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setUsers(res.data.users);
             setTotalPages(res.data.totalPages);
@@ -46,7 +46,7 @@ const UserManagement = () => {
         setDetailLoading(true);
         try {
             const res = await axios.get(`${API_URL}/admin/users/${id}`, {
-                headers: { 'x-auth-token': token }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setSelectedUser(res.data);
             setDetailLoading(false);

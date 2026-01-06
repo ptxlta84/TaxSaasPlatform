@@ -14,10 +14,10 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            // Retrieve token manually as interceptor might be cleaner but explicit here for clarity
-            const token = localStorage.getItem('token'); 
+            // Retrieve token manually
+            const token = localStorage.getItem('accessToken'); 
             const res = await axios.get(`${API_URL}/admin/stats`, {
-                headers: { 'x-auth-token': token } 
+                headers: { 'Authorization': `Bearer ${token}` } 
                 // Alternatively use authService if interceptor handles it
             }); 
             setStats(res.data);
