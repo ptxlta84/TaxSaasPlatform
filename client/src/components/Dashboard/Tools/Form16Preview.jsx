@@ -11,67 +11,84 @@ const InfoRow = ({ label, value, className = "" }) => (
 );
 
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
-  const { employer = {}, salary = {}, tds = {}, financialYear = '2024-25' } = data || {};
+  try {
+      const { employer = {}, salary = {}, tds = {}, financialYear = '2024-25' } = data || {};
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-100 dark:border-green-800 flex items-center gap-3">
-        <CheckCircle className="text-green-600 dark:text-green-400" size={24} />
-        <div>
-           <h3 className="font-bold text-gray-900 dark:text-white">Form 16 Parsed Successfully</h3>
-           <p className="text-sm text-gray-600 dark:text-gray-300">Review extracted data for FY {financialYear}</p>
-        </div>
-      </div>
+      // Safe formatter helper
+      const fmt = (val) => {
+          if (val === undefined || val === null || isNaN(Number(val))) return '0';
+          return Number(val).toLocaleString('en-IN');
+      };
 
-      <div className="p-6 grid md:grid-cols-2 gap-8">
-        {/* Employer Details */}
-        <div>
-           <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
-              <Building2 size={18} className="text-blue-500" /> Employer Details
-           </h4>
-           <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
-              <InfoRow label="Name" value={employer.name} />
-              <InfoRow label="TAN" value={employer.tan} />
-              <InfoRow label="Address" value={employer.address} />
-           </div>
-        </div>
+      return (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-100 dark:border-green-800 flex items-center gap-3">
+            <CheckCircle className="text-green-600 dark:text-green-400" size={24} />
+            <div>
+               <h3 className="font-bold text-gray-900 dark:text-white">Form 16 Parsed Successfully</h3>
+               <p className="text-sm text-gray-600 dark:text-gray-300">Review extracted data for FY {financialYear}</p>
+            </div>
+          </div>
 
-        {/* TDS Details */}
-         <div>
-           <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
-              <FileText size={18} className="text-purple-500" /> TDS Summary
-           </h4>
-           <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
-              <InfoRow label="Total Amount Paid" value={`₹${tds.totalamount.toLocaleString()}`} />
-              <InfoRow label="Total Tax Deducted" value={`₹${tds.taxDeducted.toLocaleString()}`} className="text-red-600 font-bold" />
-           </div>
-        </div>
-        
-        {/* Salary Details (Full Width) */}
-        <div className="md:col-span-2">
-            <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
-              <FileText size={18} className="text-green-500" /> Salary Breakdown (Part B)
-           </h4>
-           <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 grid md:grid-cols-2 gap-x-8 gap-y-2">
-                <InfoRow label="Gross Salary" value={`₹${salary.gross.toLocaleString()}`} />
-                <InfoRow label="All Allowances (Exempt)" value={`₹${(salary.hra + salary.lta).toLocaleString()}`} />
-                <div className="col-span-2 my-2 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
-                <InfoRow label="Standard Deduction" value={`₹${salary.standardDeduction.toLocaleString()}`} />
-                <InfoRow label="Professional Tax" value={`₹${salary.professionalTax.toLocaleString()}`} />
-                <div className="col-span-2 my-2 border-t border-gray-300 dark:border-gray-600"></div>
-                <InfoRow label="Net Taxable Income" value={`₹${salary.netTaxable.toLocaleString()}`} className="text-lg font-bold text-blue-600" />
-           </div>
-        </div>
-      </div>
+          <div className="p-6 grid md:grid-cols-2 gap-8">
+            {/* Employer Details */}
+            <div>
+               <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
+                  <Building2 size={18} className="text-blue-500" /> Employer Details
+               </h4>
+               <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
+                  <InfoRow label="Name" value={employer.name} />
+                  <InfoRow label="TAN" value={employer.tan} />
+                  <InfoRow label="Address" value={employer.address} />
+               </div>
+            </div>
 
-      <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-         <Button variant="outline" onClick={onReupload}>Upload Different File</Button>
-         <Button onClick={onConfirm} className="flex items-center gap-2">
-            Proceed to Filing <ArrowRight size={18} />
-         </Button>
-      </div>
-    </div>
-  );
+            {/* TDS Details */}
+             <div>
+               <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
+                  <FileText size={18} className="text-purple-500" /> TDS Summary
+               </h4>
+               <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
+                  <InfoRow label="Total Amount Paid" value={`₹${fmt(tds.totalamount)}`} />
+                  <InfoRow label="Total Tax Deducted" value={`₹${fmt(tds.taxDeducted)}`} className="text-red-600 font-bold" />
+               </div>
+            </div>
+            
+            {/* Salary Details (Full Width) */}
+            <div className="md:col-span-2">
+                <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
+                  <FileText size={18} className="text-green-500" /> Salary Breakdown (Part B)
+               </h4>
+               <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 grid md:grid-cols-2 gap-x-8 gap-y-2">
+                    <InfoRow label="Gross Salary" value={`₹${fmt(salary.gross)}`} />
+                    <InfoRow label="All Allowances (Exempt)" value={`₹${fmt((salary.hra || 0) + (salary.lta || 0))}`} />
+                    <div className="col-span-2 my-2 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
+                    <InfoRow label="Standard Deduction" value={`₹${fmt(salary.standardDeduction)}`} />
+                    <InfoRow label="Professional Tax" value={`₹${fmt(salary.professionalTax)}`} />
+                    <div className="col-span-2 my-2 border-t border-gray-300 dark:border-gray-600"></div>
+                    <InfoRow label="Net Taxable Income" value={`₹${fmt(salary.netTaxable)}`} className="text-lg font-bold text-blue-600" />
+               </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+             <Button variant="outline" onClick={onReupload}>Upload Different File</Button>
+             <Button onClick={onConfirm} className="flex items-center gap-2">
+                Proceed to Filing <ArrowRight size={18} />
+             </Button>
+          </div>
+        </div>
+      );
+  } catch (err) {
+      console.error("Form16Preview Render Error:", err);
+      return (
+          <div className="p-6 bg-red-50 text-red-600 rounded-xl border border-red-200 text-center">
+              <p className="font-bold">Error displaying Form-16 preview.</p>
+              <p className="text-sm mt-2">However, data might have been parsed partially.</p>
+              <Button size="sm" variant="outline" onClick={onReupload} className="mt-4">Try different file</Button>
+          </div>
+      );
+  }
 };
 
 export default Form16Preview;
