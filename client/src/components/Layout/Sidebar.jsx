@@ -1,14 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Calculator, PieChart, Settings, LogOut, FileStack, Home, Globe, Users, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Calculator, PieChart, Settings, LogOut, FileStack, Home, Globe, Users, User, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 const Sidebar = () => {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const { t } = useTranslation('common');
     
     const navItems = [
+        ...(user?.role === 'admin' ? [{ icon: Shield, label: 'Admin Panel', path: '/admin/dashboard' }] : []),
         { icon: LayoutDashboard, label: t('nav.overview'), path: '/dashboard' },
         { icon: User, label: 'Tax Profile', path: '/dashboard/profile' },
         { icon: Calculator, label: 'Tax Estimator', path: '/dashboard/estimate' },
