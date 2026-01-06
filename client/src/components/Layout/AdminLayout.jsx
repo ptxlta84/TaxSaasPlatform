@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, PieChart, Settings, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Users, PieChart, Settings, LogOut, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLayout = () => {
@@ -60,6 +60,13 @@ const AdminLayout = () => {
                             <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                         </div>
                     </div>
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-3 px-4 py-3 mb-2 w-full rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border border-transparent hover:border-slate-700"
+                    >
+                        <ArrowLeft size={20} />
+                        Exit Admin Mode
+                    </button>
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-red-400 hover:bg-red-900/20 transition-colors"
