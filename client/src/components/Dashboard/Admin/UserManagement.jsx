@@ -8,6 +8,7 @@ import Button from '../../Button/Button';
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
@@ -36,6 +37,7 @@ const UserManagement = () => {
             setLoading(false);
         } catch (err) {
             console.error(err);
+            setError('Failed to load users. ' + (err.response?.data?.message || err.message));
             setLoading(false);
         }
     };
@@ -188,6 +190,8 @@ const UserManagement = () => {
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                             {loading ? (
                                 <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Loading users...</td></tr>
+                            ) : error ? (
+                                <tr><td colSpan="5" className="px-6 py-8 text-center text-red-500">{error}</td></tr>
                             ) : users.length === 0 ? (
                                 <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">No users found.</td></tr>
                             ) : users.map((user) => (

