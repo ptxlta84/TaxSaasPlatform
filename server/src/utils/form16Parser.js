@@ -35,7 +35,16 @@ const parseForm16 = async (buffer) => {
             return 0;
         };
 
+        // Detect Form Type
+        // Part A usually contains TDS certificate info
+        const isPartA = /Certificate under section 203|Quarter-wise break up of TDS|TDS Deducted at Source/i.test(text);
+        
+        // Part B usually contains "Income chargeable under the head 'Salaries'" or detailed breakup
+        const isPartB = /(?:Gross Salary|Gross Total Income|Income chargeable under the head 'Salaries')/i.test(text);
+
         const result = {
+            isPartA,
+            isPartB,
             grossSalary: extractValue(grossSalaryPattern),
             exemptionsSection10: extractValue(exemptSection10Pattern),
             deductionsSection16: extractValue(deductionsSection16Pattern),

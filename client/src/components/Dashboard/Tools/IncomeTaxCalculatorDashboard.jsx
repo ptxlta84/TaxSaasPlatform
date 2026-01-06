@@ -139,12 +139,21 @@ const IncomeTaxCalculatorDashboard = () => {
 
             // Update state with extracted data
             if (res.data.updatedIncome) {
-                 setIncomeData(prev => ({
-                    ...prev,
-                    salary: { ...prev.salary, ...res.data.updatedIncome.salary },
-                    // Potentially other fields if parser supports them later
-                }));
-                alert('Success! Form-16 parsed and data auto-filled.');
+                const { isPartA, isPartB, tdsDeducted } = res.data.extractedData || {};
+
+                if (isPartA && !isPartB) {
+                    alert(`Part A Detected (TDS Certificate). TDS Amount: ₹${tdsDeducted}\n\nPlease upload Part B to auto-fill Salary details.`);
+                } else {
+                     setIncomeData(prev => ({
+                        ...prev,
+                        salary: { ...prev.salary, ...res.data.updatedIncome.salary },
+                        // Potentially other fields if parser supports them later
+                    }));
+                    
+                    let msg = 'Success! Form-16 (Part B) parsed and salary data auto-filled.';
+                    if (isPartA) msg += ` Also noted TDS: ₹${tdsDeducted}`;
+                    alert(msg);
+                }
             }
         } catch (err) {
             console.error('Upload failed', err);
