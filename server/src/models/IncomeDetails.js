@@ -11,6 +11,16 @@ const incomeDetailsSchema = new mongoose.Schema({
     type: String,
     default: '2024-2025'
   },
+  form16Stage: {
+    type: String,
+    enum: ['NONE', 'PART_A_UPLOADED', 'PART_A_PARSED', 'PART_B_UPLOADED', 'PART_B_PARSED', 'CONSOLIDATED'],
+    default: 'NONE'
+  },
+  employer: {
+    name: { type: String, default: '' },
+    tan: { type: String, default: '' },
+    address: { type: String, default: '' }
+  },
   salary: {
     grossSalary: { type: Number, default: 0 },
     allowances: { type: Number, default: 0 }, // HRA, LTA etc.

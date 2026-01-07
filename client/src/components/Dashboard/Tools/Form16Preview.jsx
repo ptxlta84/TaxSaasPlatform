@@ -12,7 +12,15 @@ const InfoRow = ({ label, value, className = "" }) => (
 
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
   try {
-      const { employer = {}, financialYear = '2024-25', isPartA, isPartB } = data || {};
+      const { 
+          employer = {}, 
+          financialYear = '2024-25', 
+          parsedPart, 
+          form16Stage 
+      } = data || {};
+      
+      const isPartA = parsedPart === 'A' || form16Stage === 'PART_A_PARSED';
+      const isPartB = parsedPart === 'B' || form16Stage === 'PART_B_PARSED' || form16Stage === 'CONSOLIDATED';
 
       // Safe formatter helper
       const fmt = (val) => {
@@ -20,23 +28,28 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
           return Number(val).toLocaleString('en-IN');
       };
 
-      // 1. Header Logic
+      // 1. Success Messages & Header Logic
       let statusMsg = "Form 16 Parsed Successfully";
       let subMsg = `Review extracted data for FY ${financialYear}`;
       
       if (isPartA && !isPartB) {
-          statusMsg = "Part A (TDS Certificate) Parsed";
-          subMsg = "TDS data specifically extracted.";
-      } else if (isPartB && !isPartA) {
-          statusMsg = "Part B (Salary Details) Parsed";
-          subMsg = "Salary data extracted for Auto-fill.";
-      } else if (isPartA && isPartB) {
-          statusMsg = "Full Form-16 Parsed Successfully";
-          subMsg = "Both TDS and Salary details extracted.";
+          statusMsg = "Part A parsed successfully. Please upload Part B to continue.";
+          subMsg = "TDS data extracted. Salary details hidden until Part B is uploaded.";
+      } else if (isPartB) {
+          statusMsg = "Part B parsed successfully. Review salary details below.";
+          subMsg = "Consolidated view of Employer, TDS, and Salary.";
       }
 
-      // 2. Button Instruction
-      const primaryActionText = !isPartB ? "Upload Part B (Salary Details)" : "Proceed to Filing";
+      // 2. CTA Button Logic
+      // If Part A only -> Primary is "Upload Part B"
+      // If Part B -> Primary is "Proceed", Secondary is "Replace Part B" (reupload)
+      
+      const primaryActionText = !isPartB ? "Upload Part B" : "Proceed to Filing";
+      const secondaryActionText = !isPartB ? null : "Replace Part B"; // User said HIDE "Upload Different File" for Part A
+      
+      // 3. Screen Rendering Rules
+      // Part A: Show Employer, TDS. Hide Salary, Std Ded, Net Taxable.
+      // Part B: Show All.
 
       return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -49,7 +62,7 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
           </div>
 
           <div className="p-6 grid md:grid-cols-2 gap-8">
-            {/* Employer Details */}
+            {/* Employer Details (Always Visible) */}
             <div>
                <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
                   <Building2 size={18} className="text-blue-500" /> Employer Details
@@ -61,37 +74,45 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
                </div>
             </div>
 
-            {/* TDS Details */}
+            {/* TDS Details (Always Visible) */}
              <div>
                <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
                   <FileText size={18} className="text-purple-500" /> TDS Summary
                </h4>
                <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
-                  <InfoRow label="Total Amount Paid" value={`₹${fmt(data.grossSalary)}`} /> 
-                  <InfoRow label="Total Tax Deducted" value={`₹${fmt(data.tdsDeducted)}`} className="text-red-600 font-bold" />
+                   {/* Note: In Part A, grossSalary might represent 'Amount Paid' */}
+                  <InfoRow label="Total Amount Paid/Credited" value={`₹${fmt(data.extractedData?.grossSalary || data.grossSalary)}`} /> 
+                  <InfoRow label="Total Tax Deducted" value={`₹${fmt(data.extractedData?.tdsDeducted || data.tdsDeducted || 0)}`} className="text-red-600 font-bold" />
                </div>
             </div>
             
-            {/* Salary Details (Full Width) */}
+            {/* Salary Details (Visible ONLY after Part B) */}
+            {isPartB && (
             <div className="md:col-span-2">
                 <h4 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-4">
                   <FileText size={18} className="text-green-500" /> Salary Breakdown (Part B)
                </h4>
                <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 grid md:grid-cols-2 gap-x-8 gap-y-2">
-                    <InfoRow label="Gross Salary" value={`₹${fmt(data.grossSalary)}`} />
-                    <InfoRow label="Exemptions u/s 10" value={`₹${fmt(data.exemptionsSection10)}`} />
+                    {/* Accessing Flattened Data from Controller Response (extractedData or root data) */}
+                    <InfoRow label="Gross Salary" value={`₹${fmt(data.extractedData?.grossSalary)}`} />
+                    <InfoRow label="Exemptions u/s 10" value={`₹${fmt(data.extractedData?.exemptionsSection10)}`} />
                     <div className="col-span-2 my-2 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
-                    <InfoRow label="Standard Deduction" value={`₹${fmt(data.standardDeduction)}`} />
-                    <InfoRow label="Professional Tax" value={`₹${fmt(data.professionalTax)}`} />
+                    <InfoRow label="Standard Deduction" value={`₹${fmt(data.extractedData?.standardDeduction)}`} />
+                    <InfoRow label="Professional Tax" value={`₹${fmt(data.extractedData?.professionalTax)}`} />
                     <div className="col-span-2 my-2 border-t border-gray-300 dark:border-gray-600"></div>
-                    <InfoRow label="Net Taxable Income" value={`₹${fmt(data.taxableSalary)}`} className="text-lg font-bold text-blue-600" />
+                    <InfoRow label="Net Taxable Income" value={`₹${fmt(data.extractedData?.taxableSalary)}`} className="text-lg font-bold text-blue-600" />
                </div>
             </div>
+            )}
           </div>
 
           <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-             <Button variant="outline" onClick={onReupload}>Upload Different File</Button>
-             <Button onClick={onConfirm} className="flex items-center gap-2">
+             {secondaryActionText && (
+                <Button variant="outline" onClick={onReupload}>{secondaryActionText}</Button>
+             )}
+             
+             {/* If Part A only, Primary Action is 'Upload Part B' which triggers re-upload flow */}
+             <Button onClick={!isPartB ? onReupload : onConfirm} className="flex items-center gap-2">
                 {primaryActionText} <ArrowRight size={18} />
              </Button>
           </div>
@@ -102,7 +123,6 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       return (
           <div className="p-6 bg-red-50 text-red-600 rounded-xl border border-red-200 text-center">
               <p className="font-bold">Error displaying Form-16 preview.</p>
-              <p className="text-sm mt-2">However, data might have been parsed partially.</p>
               <Button size="sm" variant="outline" onClick={onReupload} className="mt-4">Try different file</Button>
           </div>
       );

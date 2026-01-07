@@ -27,20 +27,15 @@ exports.uploadForm16 = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
-
-        // 1. Parse PDF from Buffer (Multer memory storage ideally)
-        // If coming from Cloudinary, we might need to fetch the file URL or upload buffer directly
-        // Assuming fileUpload middleware provides access to file buffer or path
         
+        // 1. Parse PDF
         let pdfBuffer;
         const fs = require('fs');
 
         if (req.file.buffer) {
             pdfBuffer = req.file.buffer;
         } else if (req.file.path) {
-             // If saved to disk or temp
             pdfBuffer = fs.readFileSync(req.file.path);
-             // Cleanup temp file if needed
             if (req.file.path.includes('temp') || req.file.path.includes('uploads')) {
                  fs.unlinkSync(req.file.path);
             }
@@ -50,45 +45,72 @@ exports.uploadForm16 = async (req, res) => {
         
         console.log('Parsing Form-16...');
         const extractedData = await parseForm16(pdfBuffer);
+        const { isPartA, isPartB } = extractedData;
 
-        // 2. Auto-Fill IncomeDetails
+        // 2. Fetch User State
         let income = await IncomeDetails.findOne({ user: req.user.id });
         if (!income) {
             income = new IncomeDetails({ user: req.user.id });
         }
 
-        // Update Salary Fields
-        income.salary = {
-            ...income.salary,
-            grossSalary: extractedData.grossSalary || income.salary.grossSalary,
-            allowances: {
-                ...income.salary.allowances,
-                exemptSection10: extractedData.exemptionsSection10 || income.salary.allowances.exemptSection10
-            },
-            deductions: {
-                ...income.salary.deductions,
-                standardDeduction: extractedData.standardDeduction || 50000, // Use parsed or default
-                professionalTax: extractedData.professionalTax || 0
-            }
-        };
+        // 3. State Machine & Validation
+        let parsedPart = "UNKNOWN";
 
-        // If parser found section 16 specific value greater than standard, use logic, 
-        // but typically 50k is separate. Let's trust parser for "deductionsSection16" minus 50k?
-        // Actually, let's keep it simple: mapped gross and exempt10. 
-        // Users can manually adjust Standard Deduction/Prof Tax.
+        if (isPartA && !isPartB) {
+            parsedPart = "A";
+            // Always allow Part A upload (or re-upload)
+            income.form16Stage = 'PART_A_PARSED';
+            
+            // Persist Employer Details
+            if (extractedData.employer && extractedData.employer.name) {
+                income.employer = {
+                    name: extractedData.employer.name,
+                    tan: extractedData.employer.tan,
+                    address: extractedData.employer.address
+                };
+            }
         
-        // 3. Auto-Fill Deductions (TDS at least, maybe 80C if we parsed it properly - parser only had basic regex)
-        // Let's update Deductions if we add regex for it in parser later. 
-        // For now, let's just update TDS in a Tax/TDS model? 
-        // Currently we don't have a "TDS Paid" field in Income/Deduction models explicitly except maybe "Advance Tax"?
-        // We will return TDS in the response for the frontend to show or save elsewhere.
+        } else if (isPartB) { // Part B often contains Part A text or is strictly Part B
+            parsedPart = "B";
+            
+            // STRICT GUARD: Must have Part A first
+            // Handle legacy docs (undefined stage) as NONE
+            if (!income.form16Stage || income.form16Stage === 'NONE') {
+                return res.status(400).json({ 
+                    message: 'Please upload Form-16 Part A first.',
+                    error_code: 'MISSING_PART_A'
+                });
+            }
+
+            income.form16Stage = 'PART_B_PARSED';
+
+            // Update Salary Fields
+            income.salary = {
+                ...income.salary,
+                grossSalary: extractedData.grossSalary || income.salary.grossSalary,
+                allowances: {
+                    ...income.salary.allowances,
+                    exemptSection10: extractedData.exemptionsSection10 || income.salary.allowances.exemptSection10
+                },
+                deductions: {
+                    ...income.salary.deductions,
+                    standardDeduction: extractedData.standardDeduction || income.salary.deductions.standardDeduction,
+                    professionalTax: extractedData.professionalTax || income.salary.deductions.professionalTax
+                }
+            };
+        } else {
+            // Unrecognized or Generic
+             return res.status(400).json({ message: 'Could not identify Form-16 Part A or Part B. Please check the file.' });
+        }
 
         await income.save();
 
         res.json({
-            message: 'Form-16 processed successfully',
-            extractedData,
-            updatedIncome: income
+            message: parsedPart === 'A' ? 'Part A parsed successfully. Please upload Part B to continue.' : 'Part B parsed successfully. Review salary details below.',
+            parsedPart,
+            form16Stage: income.form16Stage,
+            extractedData, // Send back for preview
+            updatedIncome: income // Send back persisted state
         });
 
     } catch (err) {
