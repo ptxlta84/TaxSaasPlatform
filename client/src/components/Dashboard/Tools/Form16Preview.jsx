@@ -40,21 +40,13 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       } else if (parsedPart === 'B' && form16Stage === 'PART_B_PARSED') {
           statusMsg = "Part B parsed successfully. Review salary details below.";
           subMsg = "Consolidated view of Employer, TDS, and Salary.";
-      } else if (form16Stage === 'CONSOLIDATED') {
-          // Fallback for full view if needed, or Treat as Part B success
-          statusMsg = "Form 16 Consolidated Successfully";
-          subMsg = "Review all extracted details.";
       }
 
       // DEV ASSERTION: Prevent regression to generic message for Part A
-      if (parsedPart === 'A' && (!statusMsg || statusMsg.includes('Form 16 Parsed'))) {
-           throw new Error('Invalid success banner for Part A. Must be strict.');
-      }
-      
-      // Fallback for safety if somehow state is completely broken (should be caught by try/catch)
-      if (!statusMsg) {
-         statusMsg = "Processing Complete"; 
-         subMsg = "Please review extracted details.";
+      // REQUIRED: Block any generic success text
+      const forbidden = ['Form 16 Parsed', 'Processing Complete', 'review extracted'];
+      if (statusMsg && forbidden.some(t => statusMsg.includes(t) || subMsg.includes(t))) {
+           throw new Error('Invalid generic success banner rendered');
       }
 
       // 2. CTA Button Logic
@@ -70,6 +62,7 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
 
       return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {statusMsg && (
           <div className="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-100 dark:border-green-800 flex items-center gap-3">
             <CheckCircle className="text-green-600 dark:text-green-400" size={24} />
             <div>
@@ -77,6 +70,7 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
                <p className="text-sm text-gray-600 dark:text-gray-300">{subMsg}</p>
             </div>
           </div>
+          )}
 
           <div className="p-6 grid md:grid-cols-2 gap-8">
             {/* Employer Details (Always Visible) */}
