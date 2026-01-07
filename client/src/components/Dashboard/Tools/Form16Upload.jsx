@@ -61,7 +61,14 @@ const Form16Upload = () => {
           // Response now includes: { message, parsedPart, form16Stage, extractedData }
           const res = await taxService.uploadDocument(itrId, uploadedFile, 'form16');
           
-          setParsedData(res); 
+          // FORCE STATE UPDATE: Merge response ensuring stage/part are top-level
+          const newData = {
+              ...res, // server response
+              parsedPart: res.parsedPart,
+              form16Stage: res.form16Stage
+          };
+          
+          setParsedData(newData); 
           if (res.form16Stage) {
               setStage(res.form16Stage);
           }

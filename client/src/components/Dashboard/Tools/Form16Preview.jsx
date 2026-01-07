@@ -56,6 +56,11 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       const primaryActionText = !isPartB ? "Upload Part B" : "Proceed to Filing";
       const secondaryActionText = !isPartB ? null : "Replace Part B"; // User said HIDE "Upload Different File" for Part A
       
+      // HARD ASSERTION: State Bug Check
+      if (parsedPart === 'B' && primaryActionText.includes('Upload Part B')) {
+          throw new Error('STATE BUG: Part B parsed but UI still in Part A state');
+      }
+      
       // 3. Screen Rendering Rules
       // Part A: Show Employer, TDS. Hide Salary, Std Ded, Net Taxable.
       // Part B: Show All.
