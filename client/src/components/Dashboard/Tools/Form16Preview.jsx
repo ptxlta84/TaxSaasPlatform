@@ -115,6 +115,11 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
                     <div className="col-span-2 my-2 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
                     <InfoRow label="Standard Deduction" value={`₹${fmt(data.extractedData?.standardDeduction)}`} />
                     <InfoRow label="Professional Tax" value={`₹${fmt(data.extractedData?.professionalTax)}`} />
+                    
+                    {/* New Fields extraction "as is" */}
+                    <InfoRow label="Income from House Property" value={`₹${fmt(data.extractedData?.incomeHouseProperty)}`} />
+                    <InfoRow label="Income from Other Sources" value={`₹${fmt(data.extractedData?.incomeOtherSources)}`} />
+
                     <div className="col-span-2 my-2 border-t border-gray-300 dark:border-gray-600"></div>
                     <InfoRow label="Net Taxable Income" value={`₹${fmt(data.extractedData?.taxableSalary)}`} className="text-lg font-bold text-blue-600" />
                </div>

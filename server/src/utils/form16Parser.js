@@ -135,6 +135,17 @@ const parseForm16 = async (buffer) => {
         ]);
         console.log(`Debug: Employer Name result: "${employerName}"`);
         
+        // 7. Income from Other Sources & House Property (New Requirement)
+        const incomeOtherSources = extractValue([ // often 192 (2B)
+            "Income under the head Other Sources",
+            "Any other income reported by the employee"
+        ]);
+        
+        const incomeHouseProperty = extractValue([
+            "Income \\(or admissible loss\\) from house property", // Escaped parens for regex
+            "Income from house property"
+        ]);
+
         // TAN
         // TAN pattern is standard: 4 alpha, 5 numeric, 1 alpha. Look specifically near header if generic search fails
         let tan = "";
@@ -227,6 +238,9 @@ const parseForm16 = async (buffer) => {
             professionalTax,
             taxableSalary, 
             tdsDeducted,
+            // New Fields for House Property and Other Sources
+            incomeOtherSources,
+            incomeHouseProperty,
             // Metadata
             textLength: text.length,
             pageCount: data.numpages

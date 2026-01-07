@@ -86,6 +86,24 @@ exports.uploadForm16 = async (req, res) => {
                     professionalTax: extractedData.professionalTax || income.salary.deductions.professionalTax
                 }
             };
+
+            // Enhanced Mapping: House Property & Other Sources (as requested "get value as it is")
+            if (extractedData.incomeHouseProperty !== undefined) {
+                 // Map directly to netIncome (loss is negative)
+                 income.houseProperty = {
+                     ...income.houseProperty,
+                     netIncome: extractedData.incomeHouseProperty,
+                     type: extractedData.incomeHouseProperty < 0 ? 'self' : 'let-out' // Heuristic defaults
+                 };
+            }
+
+            if (extractedData.incomeOtherSources !== undefined) {
+                // Map to 'other' bucket or total
+                income.otherSources = {
+                    ...income.otherSources,
+                    other: extractedData.incomeOtherSources
+                };
+            }
         } else if (isPartA) { // Parser ensures isPartA is false if isPartB is true
             parsedPart = "A";
             // Always allow Part A upload (or re-upload)
