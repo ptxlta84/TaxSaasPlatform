@@ -67,9 +67,8 @@ exports.uploadForm16 = async (req, res) => {
             },
             deductions: {
                 ...income.salary.deductions,
-                standardDeduction: 50000, // Fixed for 2024-25 usually, or logic? 
-                professionalTax: 0 // Cannot parse reliably usually
-                // section16: extractedData.deductionsSection16 // Or use parsed total
+                standardDeduction: extractedData.standardDeduction || 50000, // Use parsed or default
+                professionalTax: extractedData.professionalTax || 0
             }
         };
 
