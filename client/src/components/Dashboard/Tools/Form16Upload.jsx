@@ -58,14 +58,19 @@ const Form16Upload = () => {
 
           // 2. Upload to Cloudinary via Backend
           // Note: taxService.uploadDocument should match the new response structure
-          // Response now includes: { message, parsedPart, form16Stage, extractedData }
+          // Response now includes: { message, parsedPart, form16Stage, extractedData, __debug }
           const res = await taxService.uploadDocument(itrId, uploadedFile, 'form16');
           
+          console.log('[Form16Upload] Server Response:', res);
+
           // FORCE STATE UPDATE: Merge response ensuring stage/part are top-level
+          // STRICT: Do not rely on undefined checks. Use what server sent.
           const newData = {
-              ...res, // server response
               parsedPart: res.parsedPart,
-              form16Stage: res.form16Stage
+              form16Stage: res.form16Stage,
+              extractedData: res.extractedData,
+              message: res.message,
+              __debug: res.__debug // Pass debug info to Preview
           };
           
           setParsedData(newData); 

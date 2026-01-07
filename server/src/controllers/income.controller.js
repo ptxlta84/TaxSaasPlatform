@@ -129,17 +129,30 @@ exports.uploadForm16 = async (req, res) => {
         console.log(`DETECTED_FORM16_PART = ${parsedPart}`);
         console.log(`MATCH_REASON = ${matchReason}`);
         
+        // STRICT CONTRACT RESPONSE
         const responsePayload = {
-            message: parsedPart === 'A' ? 'Part A parsed successfully. Please upload Part B to continue.' : 'Part B parsed successfully. Review salary details below.',
             parsedPart,
             form16Stage: income.form16Stage,
-            extractedData, // Send back for preview
-            updatedIncome: income // Send back persisted state
+            extractedData, // Contains employer, tds, salary, houseProp, otherSources
+            // Standard message for UI toast
+            message: parsedPart === 'A' ? 'Part A parsed successfully. Please upload Part B to continue.' : 'Part B parsed successfully. Review salary details below.',
+            updatedIncome: income,
+            // DEBUG ECHO (MANDATORY per Step 4)
+            __debug: {
+                resolvedAs: parsedPart,
+                form16Stage: income.form16Stage,
+                matchReason,
+                salaryFieldsFound: Object.keys(income.salary || {}).length > 0,
+                hasNetTaxable: !!extractedData.taxableSalary,
+                handler: "income.controller.js:uploadForm16",
+                timestamp: new Date().toISOString()
+            }
         };
         
         console.log("API RESPONSE:", JSON.stringify({
             parsedPart: responsePayload.parsedPart,
-            form16Stage: responsePayload.form16Stage
+            form16Stage: responsePayload.form16Stage,
+            debug: responsePayload.__debug
         }));
 
         res.json(responsePayload);
