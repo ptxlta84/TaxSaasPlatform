@@ -54,26 +54,11 @@ exports.uploadForm16 = async (req, res) => {
         }
 
         // 3. State Machine & Validation
-        // 3. State Machine & Validation
         let parsedPart = "UNKNOWN";
-        // Extract matchReason if available
         const matchReason = extractedData.matchReason || "Unknown Reason";
 
-        if (isPartA && !isPartB) {
-            parsedPart = "A";
-            // Always allow Part A upload (or re-upload)
-            income.form16Stage = 'PART_A_PARSED';
-            
-            // Persist Employer Details
-            if (extractedData.employer && extractedData.employer.name) {
-                income.employer = {
-                    name: extractedData.employer.name,
-                    tan: extractedData.employer.tan,
-                    address: extractedData.employer.address
-                };
-            }
-        
-        } else if (isPartB) { // Part B often contains Part A text or is strictly Part B
+        // PRIORITY LOGIC: Part B wins always (enforced by Parser too, but double-checked here)
+        if (isPartB) { 
             parsedPart = "B";
             
             // STRICT GUARD: Must have Part A first
@@ -101,6 +86,20 @@ exports.uploadForm16 = async (req, res) => {
                     professionalTax: extractedData.professionalTax || income.salary.deductions.professionalTax
                 }
             };
+        } else if (isPartA) { // Parser ensures isPartA is false if isPartB is true
+            parsedPart = "A";
+            // Always allow Part A upload (or re-upload)
+            income.form16Stage = 'PART_A_PARSED';
+            
+            // Persist Employer Details
+            if (extractedData.employer && extractedData.employer.name) {
+                income.employer = {
+                    name: extractedData.employer.name,
+                    tan: extractedData.employer.tan,
+                    address: extractedData.employer.address
+                };
+            }
+        
         } else {
             // Unrecognized or Generic
              return res.status(400).json({ message: 'Could not identify Form-16 Part A or Part B. Please check the file.' });

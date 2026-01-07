@@ -154,38 +154,67 @@ const parseForm16 = async (buffer) => {
         }
 
 
-        // Detect Form Type
-        let matchReason = "None";
-        let isPartA = false;
-        let isPartB = false;
-
-        // Refined Part A: Must be explicit Certificate or Form 16 header
-        // capturing the match for logging
-        const partAMatch = text.match(/Form\s+No\.?\s*16|Certificate\s+under\s+section\s+203|Quarter-wise\s+break\s+up\s+of\s+TDS/i);
-        if (partAMatch) {
-             isPartA = true;
-             matchReason = `Part A via pattern: "${partAMatch[0]}"`;
-        }
+        // --- STRICT CLASSIFICATION STRATEGY ---
         
-        // Refined Part B check
+        // Part A Signals (ALL required)
+        // 1. "Certificate under section 203"
+        // 2. "Form No. 16"
+        // 3. "Details of Tax Deducted" (allowing flexibility)
+        const hasCert203 = /Certificate\s+under\s+section\s+203/i.test(text);
+        const hasForm16 = /Form\s+No\.?\s*16/i.test(text);
+        
+        // "Details of Tax Deducted and Deposited" - specific to Part A
+        const hasTaxDetails = /Details\s+of\s+Tax\s+Deducted/i.test(text);
+
+        // Part B Signals (ANY required)
         const partBPatterns = [
-            "Salary as per provisions",
-            "Income chargeable under the head",
-            "Annexure B",
-            "Details of Salary Paid"
+            "Salary as per provisions", // of section 17
+            "Less: Allowance",
+            "Gross Salary", // Be careful, Part A might sum this, but usually "Amount Paid"
+            "Deductions under Chapter VI-A"
         ];
+        
+        const matchedPartBTokens = [];
+        let isPartB = false;
         
         for (const p of partBPatterns) {
              if (new RegExp(flex(p), 'i').test(text)) {
                  isPartB = true;
-                 matchReason = `Part B via pattern: "${p}"`; // Overwrites Part A reason if both match (Priority B)
-                 break;
+                 matchedPartBTokens.push(p);
+                 // Don't break, capture all for logging confidence
              }
         }
 
-        const result = {
-            isPartA,
+        // Logic Implementation
+        // Part A is ONLY true if ALL strong signals match AND it is NOT Part B (via late exclusion)
+        let isPartA = hasCert203 && hasForm16 && hasTaxDetails;
+
+        // EXCLUSION RULE (CRITICAL): Part B Priority
+        if (isPartB) {
+            isPartA = false; 
+        }
+
+        const resolvedAs = isPartB ? "B" : (isPartA ? "A" : "UNKNOWN");
+        
+        // MANDATORY LOGGING
+        const classificationLog = {
+            isPartA_initial: hasCert203 && hasForm16 && hasTaxDetails,
             isPartB,
+            signals: {
+                hasCert203,
+                hasForm16,
+                hasTaxDetails,
+                partB_matches: matchedPartBTokens
+            },
+            resolvedAs,
+            matchedTokens: matchedPartBTokens
+        };
+        console.log("FORM16_CLASSIFICATION:", JSON.stringify(classificationLog, null, 2));
+
+        const result = {
+            isPartA, // Final resolving boolean
+            isPartB, // Final resolving boolean
+            matchReason: matchedPartBTokens.length > 0 ? `Part B (Tokens: ${matchedPartBTokens.join(', ')})` : (isPartA ? "Part A (Strict Signal Match)" : "Unknown"),
             employer: {
                 name: employerName !== 'Unknown Employer' ? employerName : "Employer (Name not found)",
                 tan: tan,
