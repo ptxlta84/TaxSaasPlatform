@@ -1,9 +1,17 @@
+
 const pdf = require('pdf-parse');
 
 const parseForm16 = async (buffer) => {
     try {
         const data = await pdf(buffer);
-        const text = data.text;
+        let text = data.text;
+        // Try to guess methods
+        // console.log("data.text type:", typeof data.text);
+        // console.log("data.getText type:", typeof data.getText);
+
+        if (typeof data.text === 'string') text = data.text;
+        else if (data.doc && typeof data.doc.text === 'string') text = data.doc.text;
+        else text = ""; // Fallback
         
         // Debug: Log first 500 chars to see headers (in a real scenario)
         // console.log('PDF Text Start:', text.substring(0, 500));
@@ -20,13 +28,18 @@ const parseForm16 = async (buffer) => {
                 const regexPattern = typeof pattern === 'string' ? flex(pattern) : pattern;
                 
                 // Allow up to 200 chars of noise (newline, other labels) between key and value
-                const regex = new RegExp(`${regexPattern}[\\s\\S]{0,200}?([\\d,]+\\.?\\d*)`, 'i');
-                const match = text.match(regex);
-                if (match && match[1]) {
-                    const val = parseFloat(match[1].replace(/,/g, ''));
-                    // Filter out small numbers unless it's likely a small allowance, 
-                    // generally salary components are > 100 or at least non-zero integers usually
-                    if (!isNaN(val)) return val;
+                try {
+                    // Strict monetary regex: Look for number with exactly 2 decimal places to avoid row numbers/section numbers
+                    // e.g. 244848.00, 0.00. Range increased to 1000 to handle wide column layouts (header.....value)
+                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1000}?([\\d,]+\\.\\d{2})", 'i');
+                    const match = text.match(regex);
+                    if (match && match[1]) {
+                        const val = parseFloat(match[1].replace(/,/g, ''));
+                        // Accept 0.00 or legitimate values
+                        if (!isNaN(val)) return val;
+                    }
+                } catch (e) {
+                    console.error('Regex error for pattern:', regexPattern, e);
                 }
             }
             return 0;
@@ -36,27 +49,31 @@ const parseForm16 = async (buffer) => {
              for (const header of headers) {
                 const regexPattern = flex(header);
                 // Look for Header -> optional newline/space -> Capture Line
-                const regex = new RegExp(`${regexPattern}[\\s\\S]{0,50}?(\\n|\\r|^)([\\w\\s,.-]+)(?:\\n|\\r|PAN|TAN)`, 'i');
-                const match = text.match(regex);
-                if (match && match[2]) {
-                    let val = match[2].trim();
-                    // Cleanup common garbage line numbers or dates if caught
-                    if (val.length > 5) return val;
+                try {
+                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,50}?(\\n|\\r|^)([\\w\\s,.-]+)(?:\\n|\\r|PAN|TAN)", 'i');
+                    const match = text.match(regex);
+                    if (match && match[2]) {
+                        let val = match[2].trim();
+                        // Cleanup common garbage line numbers or dates if caught
+                        if (val.length > 5) return val;
+                    }
+                } catch (e) {
+                    console.error('Regex error for string pattern:', regexPattern, e);
                 }
              }
              return 'Unknown Employer';
         };
 
         // 1. Gross Salary (17(1))
-        const grossSalary = extractValue([
-            "Salary as per provisions contained in section 17(1)",
+        const grossSalary = extractValue([ // Range 1000 handles this easily
+            "Salary as per provisions contained in section 17\\(1\\)",
             "Gross Salary", 
             "Gross Total Income"
         ]);
 
         // 2. Exemptions u/s 10
         const exemptionsSection10 = extractValue([
-            "Less: Allowance to the extent exempt u/s 10",
+            "Less: Allowances to the extent exempt under section 10",
             "Total amount of exemption claimed under section 10",
             "Section 10" 
         ]);
@@ -64,8 +81,8 @@ const parseForm16 = async (buffer) => {
         // 3. Deductions u/s 16
         // Standard Deduction u/s 16(ia)
         const standardDeduction = extractValue([
-            "Standard deduction under section 16(ia)",
-            "Standard deduction u/s 16(ia)",
+            "Standard deduction under section 16\\(ia\\)",
+            "Standard deduction u/s 16\\(ia\\)",
             "Standard deduction"
         ]);
         
@@ -79,17 +96,27 @@ const parseForm16 = async (buffer) => {
         const deductionsSection16 = standardDeduction + professionalTax;
 
         // 4. Taxable Salary
-        const taxableSalary = extractValue([
-            "Income chargeable under the head Salaries", // quotes might be messed up in PDF text
+        let taxableSalary = extractValue([
+            "Income chargeable under the head \"Salaries\"", // Most specific
+            "Income chargeable under the head Salaries", 
             "Income chargeable under the head 'Salaries'",
-            "Income chargeable under the head \"Salaries\"",
             "Net Taxable Income"
         ]);
+
+        // Logic Check: If Taxable Salary == Standard Deduction (common parsing error in this layout), recalculate
+        // or if Taxable Salary is 0 but Gross is not.
+        const calculatedTaxable = grossSalary - exemptionsSection10 - deductionsSection16;
+        
+        // Trust calculation if parsed value is suspicious (same as deduction, or 0 when gross is high)
+        if ( (taxableSalary === standardDeduction && standardDeduction > 0) || (taxableSalary === 0 && grossSalary > 0) ) {
+            console.log(`Note: Taxable Salary extracted (${taxableSalary}) suspicious. Using calculated: ${calculatedTaxable}`);
+            taxableSalary = calculatedTaxable;
+        }
 
         // 5. TDS
         const tdsDeducted = extractValue([
             "Total Tax Payable",
-            "Tax Deducted at Source", 
+            "Net Tax Payable",
             "Total TDS",
             "Total tax deducted"
         ]);
