@@ -127,21 +127,30 @@ const parseForm16 = async (buffer) => {
         ]);
 
         // 6. Employer Details
+        console.log("Debug: Attempting Employer Extraction...");
         const employerName = extractString([
             "Name and address of the Employer", 
             "Name and address of the Deductor",
             "Employer Name"
         ]);
+        console.log(`Debug: Employer Name result: "${employerName}"`);
         
         // TAN
         // TAN pattern is standard: 4 alpha, 5 numeric, 1 alpha. Look specifically near header if generic search fails
         let tan = "";
         const tanMatch = text.match(/TAN of the Deductor[\s\S]{0,100}?([A-Z]{4}\d{5}[A-Z])/i); 
-        if (tanMatch) tan = tanMatch[1];
-        else {
+        if (tanMatch) {
+            tan = tanMatch[1];
+            console.log("Debug: TAN found near header:", tan);
+        } else {
              // Fallback to searching entire text
              const genericTan = text.match(/[A-Z]{4}\d{5}[A-Z]/);
-             if (genericTan) tan = genericTan[0];
+             if (genericTan) {
+                 tan = genericTan[0];
+                 console.log("Debug: TAN found via generic search (fallback):", tan);
+             } else {
+                 console.log("Debug: TAN NOT FOUND");
+             }
         }
 
 
