@@ -155,10 +155,21 @@ const parseForm16 = async (buffer) => {
 
 
         // Detect Form Type
-        const isPartA = flex("Certificate under section 203").test || /Certificate\s+under\s+section\s+203|Quarter-wise\s+break\s+up\s+of\s+TDS|TDS\s+Deducted\s+at\s+Source/i.test(text);
+        // Refined Part A: Must be explicit Certificate or Form 16 header. avoiding generic "TDS Deducted"
+        const isPartA = /Form\s+No\.?\s*16|Certificate\s+under\s+section\s+203|Quarter-wise\s+break\s+up\s+of\s+TDS/i.test(text);
         
-        // Part B check
-        const isPartB = /(?:Salary\s+as\s+per\s+provisions|Income\s+chargeable\s+under\s+the\s+head)/i.test(text);
+        // Refined Part B check: Use flex() for robust whitespace handling and add Annexure B
+        const partBPatterns = [
+            "Salary as per provisions",
+            "Income chargeable under the head",
+            "Annexure B",
+            "Details of Salary Paid"
+        ];
+        // Test all patterns
+        const isPartB = partBPatterns.some(p => {
+             const pattern = flex(p);
+             return new RegExp(pattern, 'i').test(text);
+        });
 
         const result = {
             isPartA,
