@@ -155,21 +155,33 @@ const parseForm16 = async (buffer) => {
 
 
         // Detect Form Type
-        // Refined Part A: Must be explicit Certificate or Form 16 header. avoiding generic "TDS Deducted"
-        const isPartA = /Form\s+No\.?\s*16|Certificate\s+under\s+section\s+203|Quarter-wise\s+break\s+up\s+of\s+TDS/i.test(text);
+        let matchReason = "None";
+        let isPartA = false;
+        let isPartB = false;
+
+        // Refined Part A: Must be explicit Certificate or Form 16 header
+        // capturing the match for logging
+        const partAMatch = text.match(/Form\s+No\.?\s*16|Certificate\s+under\s+section\s+203|Quarter-wise\s+break\s+up\s+of\s+TDS/i);
+        if (partAMatch) {
+             isPartA = true;
+             matchReason = `Part A via pattern: "${partAMatch[0]}"`;
+        }
         
-        // Refined Part B check: Use flex() for robust whitespace handling and add Annexure B
+        // Refined Part B check
         const partBPatterns = [
             "Salary as per provisions",
             "Income chargeable under the head",
             "Annexure B",
             "Details of Salary Paid"
         ];
-        // Test all patterns
-        const isPartB = partBPatterns.some(p => {
-             const pattern = flex(p);
-             return new RegExp(pattern, 'i').test(text);
-        });
+        
+        for (const p of partBPatterns) {
+             if (new RegExp(flex(p), 'i').test(text)) {
+                 isPartB = true;
+                 matchReason = `Part B via pattern: "${p}"`; // Overwrites Part A reason if both match (Priority B)
+                 break;
+             }
+        }
 
         const result = {
             isPartA,

@@ -54,7 +54,10 @@ exports.uploadForm16 = async (req, res) => {
         }
 
         // 3. State Machine & Validation
+        // 3. State Machine & Validation
         let parsedPart = "UNKNOWN";
+        // Extract matchReason if available
+        const matchReason = extractedData.matchReason || "Unknown Reason";
 
         if (isPartA && !isPartB) {
             parsedPart = "A";
@@ -105,13 +108,24 @@ exports.uploadForm16 = async (req, res) => {
 
         await income.save();
 
-        res.json({
+        // FORENSIC LOGGING (MANDATORY)
+        console.log(`DETECTED_FORM16_PART = ${parsedPart}`);
+        console.log(`MATCH_REASON = ${matchReason}`);
+        
+        const responsePayload = {
             message: parsedPart === 'A' ? 'Part A parsed successfully. Please upload Part B to continue.' : 'Part B parsed successfully. Review salary details below.',
             parsedPart,
             form16Stage: income.form16Stage,
             extractedData, // Send back for preview
             updatedIncome: income // Send back persisted state
-        });
+        };
+        
+        console.log("API RESPONSE:", JSON.stringify({
+            parsedPart: responsePayload.parsedPart,
+            form16Stage: responsePayload.form16Stage
+        }));
+
+        res.json(responsePayload);
 
     } catch (err) {
         console.error('Form-16 Upload Error:', err);
