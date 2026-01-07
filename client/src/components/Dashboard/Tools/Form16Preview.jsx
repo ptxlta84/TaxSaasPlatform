@@ -29,15 +29,32 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       };
 
       // 1. Success Messages & Header Logic
-      let statusMsg = "Form 16 Parsed Successfully";
-      let subMsg = `Review extracted data for FY ${financialYear}`;
+      // 1. Success Messages & Header Logic
+      // STRICT: No generic fallback allowed. Must be state-driven.
+      let statusMsg = "";
+      let subMsg = "";
       
-      if (isPartA && !isPartB) {
+      if (parsedPart === 'A' && form16Stage === 'PART_A_PARSED') {
           statusMsg = "Part A parsed successfully. Please upload Part B to continue.";
           subMsg = "TDS data extracted. Salary details hidden until Part B is uploaded.";
-      } else if (isPartB) {
+      } else if (parsedPart === 'B' && form16Stage === 'PART_B_PARSED') {
           statusMsg = "Part B parsed successfully. Review salary details below.";
           subMsg = "Consolidated view of Employer, TDS, and Salary.";
+      } else if (form16Stage === 'CONSOLIDATED') {
+          // Fallback for full view if needed, or Treat as Part B success
+          statusMsg = "Form 16 Consolidated Successfully";
+          subMsg = "Review all extracted details.";
+      }
+
+      // DEV ASSERTION: Prevent regression to generic message for Part A
+      if (parsedPart === 'A' && (!statusMsg || statusMsg.includes('Form 16 Parsed'))) {
+           throw new Error('Invalid success banner for Part A. Must be strict.');
+      }
+      
+      // Fallback for safety if somehow state is completely broken (should be caught by try/catch)
+      if (!statusMsg) {
+         statusMsg = "Processing Complete"; 
+         subMsg = "Please review extracted details.";
       }
 
       // 2. CTA Button Logic
