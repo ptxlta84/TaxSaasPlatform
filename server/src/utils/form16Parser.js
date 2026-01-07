@@ -19,6 +19,8 @@ const parseForm16 = async (buffer) => {
         // --- Regex Patterns (Enhanced for LIC/TRACES) ---
 
         // Helper: Convert plain string to regex pattern that allows flexible whitespace
+        // Helper: Convert plain string to regex pattern that allows flexible whitespace
+        // Also escape parens automatically
         const flex = (str) => str.replace(/ /g, '\\s+').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 
         // Helper to find value after a pattern (flexible for whitespace/newlines)
@@ -27,11 +29,10 @@ const parseForm16 = async (buffer) => {
                 // Make the input pattern flexible regarding spaces
                 const regexPattern = typeof pattern === 'string' ? flex(pattern) : pattern;
                 
-                // Allow up to 200 chars of noise (newline, other labels) between key and value
+                // Allow up to 1500 chars of noise (increased from 1000 for complex layouts)
                 try {
                     // Strict monetary regex: Look for number with exactly 2 decimal places to avoid row numbers/section numbers
-                    // e.g. 244848.00, 0.00. Range increased to 1000 to handle wide column layouts (header.....value)
-                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1000}?([\\d,]+\\.\\d{2})", 'i');
+                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1500}?([\\d,]+\\.\\d{2})", 'i');
                     const match = text.match(regex);
                     if (match && match[1]) {
                         const val = parseFloat(match[1].replace(/,/g, ''));
@@ -50,12 +51,15 @@ const parseForm16 = async (buffer) => {
                 const regexPattern = flex(header);
                 // Look for Header -> optional newline/space -> Capture Line
                 try {
-                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,50}?(\\n|\\r|^)([\\w\\s,.-]+)(?:\\n|\\r|PAN|TAN)", 'i');
+                    // Reverted to search for any content after header within range
+                    // Look for: Header ... (newline) ... (Value)
+                    // The [\\s\\S]{0,100} allows for address lines or spacing
+                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,100}?(?:\\r|\\n)+([\\w\\s,.-]+)", 'i');
                     const match = text.match(regex);
-                    if (match && match[2]) {
-                        let val = match[2].trim();
+                    if (match && match[1]) {
+                        let val = match[1].trim();
                         // Cleanup common garbage line numbers or dates if caught
-                        if (val.length > 5) return val;
+                        if (val.length > 5 && !val.includes('Page')) return val; // Filter out page numbers
                     }
                 } catch (e) {
                     console.error('Regex error for string pattern:', regexPattern, e);
@@ -65,7 +69,7 @@ const parseForm16 = async (buffer) => {
         };
 
         // 1. Gross Salary (17(1))
-        const grossSalary = extractValue([ // Range 1000 handles this easily
+        const grossSalary = extractValue([ // Range 1500 handles this easily
             "Salary as per provisions contained in section 17\\(1\\)",
             "Gross Salary", 
             "Gross Total Income"
@@ -118,19 +122,27 @@ const parseForm16 = async (buffer) => {
             "Total Tax Payable",
             "Net Tax Payable",
             "Total TDS",
-            "Total tax deducted"
+            "Total tax deducted",
+            "Tax Payable"
         ]);
 
         // 6. Employer Details
         const employerName = extractString([
             "Name and address of the Employer", 
-            "Name and address of the Deductor"
+            "Name and address of the Deductor",
+            "Employer Name"
         ]);
         
         // TAN
-        // TAN pattern is standard: 4 alpha, 5 numeric, 1 alpha
-        const tanMatch = text.match(/[A-Z]{4}\d{5}[A-Z]/);
-        const tan = tanMatch ? tanMatch[0] : "";
+        // TAN pattern is standard: 4 alpha, 5 numeric, 1 alpha. Look specifically near header if generic search fails
+        let tan = "";
+        const tanMatch = text.match(/TAN of the Deductor[\s\S]{0,100}?([A-Z]{4}\d{5}[A-Z])/i); 
+        if (tanMatch) tan = tanMatch[1];
+        else {
+             // Fallback to searching entire text
+             const genericTan = text.match(/[A-Z]{4}\d{5}[A-Z]/);
+             if (genericTan) tan = genericTan[0];
+        }
 
 
         // Detect Form Type
