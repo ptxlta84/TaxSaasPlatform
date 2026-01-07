@@ -12,7 +12,7 @@ const InfoRow = ({ label, value, className = "" }) => (
 
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
   try {
-      const { employer = {}, salary = {}, tds = {}, financialYear = '2024-25' } = data || {};
+      const { employer = {}, salary = {}, tds = {}, financialYear = '2024-25', isPartA, isPartB } = data || {};
 
       // Safe formatter helper
       const fmt = (val) => {
@@ -20,13 +20,24 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
           return Number(val).toLocaleString('en-IN');
       };
 
+      let statusMsg = "Form 16 Parsed Successfully";
+      let subMsg = `Review extracted data for FY ${financialYear}`;
+      
+      if (isPartA && !isPartB) {
+          statusMsg = "Part A (TDS Certificate) Parsed";
+          subMsg = "TDS data extracted. Please upload Part B for Salary Auto-fill.";
+      } else if (isPartB) {
+          statusMsg = "Part B (Salary Details) Parsed";
+          subMsg = "Salary details extracted for Auto-fill.";
+      }
+
       return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-100 dark:border-green-800 flex items-center gap-3">
             <CheckCircle className="text-green-600 dark:text-green-400" size={24} />
             <div>
-               <h3 className="font-bold text-gray-900 dark:text-white">Form 16 Parsed Successfully</h3>
-               <p className="text-sm text-gray-600 dark:text-gray-300">Review extracted data for FY {financialYear}</p>
+               <h3 className="font-bold text-gray-900 dark:text-white">{statusMsg}</h3>
+               <p className="text-sm text-gray-600 dark:text-gray-300">{subMsg}</p>
             </div>
           </div>
 

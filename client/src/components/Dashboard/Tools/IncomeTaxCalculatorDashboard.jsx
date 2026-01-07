@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Tab } from '@headlessui/react';
-import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw, Upload } from 'lucide-react';
+import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw, Upload, X } from 'lucide-react';
+import Form16Preview from './Form16Preview';
 // import TaxEstimator from './TaxEstimator.jsx';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -14,6 +15,7 @@ const IncomeTaxCalculatorDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
+    const [previewData, setPreviewData] = useState(null); // State for Form-16 Preview Overlay
 
     const [incomeData, setIncomeData] = useState({
         salary: { grossSalary: '', allowances: '' },
@@ -139,21 +141,40 @@ const IncomeTaxCalculatorDashboard = () => {
 
             // Update state with extracted data
             if (res.data.updatedIncome) {
-                const { isPartA, isPartB, tdsDeducted } = res.data.extractedData || {};
+                const { isPartA, isPartB, tdsDeducted, employer, grossSalary, standardDeduction, professionalTax, taxableSalary } = res.data.extractedData || {};
 
-                if (isPartA && !isPartB) {
-                    alert(`Part A Detected (TDS Certificate). TDS Amount: ₹${tdsDeducted}\n\nPlease upload Part B to auto-fill Salary details.`);
-                } else {
-                     setIncomeData(prev => ({
-                        ...prev,
-                        salary: { ...prev.salary, ...res.data.updatedIncome.salary },
-                        // Potentially other fields if parser supports them later
-                    }));
-                    
-                    let msg = 'Success! Form-16 (Part B) parsed and salary data auto-filled.';
-                    if (isPartA) msg += ` Also noted TDS: ₹${tdsDeducted}`;
-                    alert(msg);
-                }
+                // Construct preview object
+                const preview = {
+                    financialYear: '2024-25',
+                    employer: employer || {},
+                    salary: {
+                        gross: grossSalary,
+                        hra: 0, // Not explicitly extracted yet, defaulting
+                        lta: 0,
+                        standardDeduction: standardDeduction || 50000, // Fallback if 0 but usually parser catches
+                        professionalTax: professionalTax || 0,
+                        netTaxable: taxableSalary || (grossSalary - 50000)
+                    },
+                    tds: {
+                        totalamount: 0, // Not extracted
+                        taxDeducted: tdsDeducted
+                    },
+                    isPartA,
+                    isPartB
+                };
+                
+                setPreviewData(preview);
+
+                // Auto-fill background state (can be overridden by user in preview confirm)
+                 setIncomeData(prev => ({
+                    ...prev,
+                    salary: { 
+                        ...prev.salary, 
+                        grossSalary: grossSalary || prev.salary.grossSalary,
+                        // We might want to add field for professional tax if it exists in schema
+                        // allowances: ... 
+                    }
+                }));
             }
         } catch (err) {
             console.error('Upload failed', err);
@@ -173,7 +194,30 @@ const IncomeTaxCalculatorDashboard = () => {
         { name: 'Other Sources', icon: DollarSign, color: 'text-teal-500' },
     ];
 
+    const handlePreviewConfirm = () => {
+        setPreviewData(null);
+        alert("Salary details auto-filled. Please review deductions next.");
+        // Could auto-switch tab or open Deductions modal here if we had one
+    };
+
     if (loading) return <div className="p-8 text-center">Loading income details...</div>;
+
+    if (previewData) {
+        return (
+            <div className="max-w-4xl mx-auto py-8">
+                <div className="mb-4">
+                    <button onClick={() => setPreviewData(null)} className="flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                         <X size={16} /> Cancel
+                    </button>
+                </div>
+               <Form16Preview 
+                    data={previewData} 
+                    onConfirm={handlePreviewConfirm} 
+                    onReupload={() => setPreviewData(null)} 
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
