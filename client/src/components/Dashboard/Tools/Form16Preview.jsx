@@ -12,7 +12,7 @@ const InfoRow = ({ label, value, className = "" }) => (
 
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
   try {
-      const { employer = {}, salary = {}, tds = {}, financialYear = '2024-25', isPartA, isPartB } = data || {};
+      const { employer = {}, financialYear = '2024-25', isPartA, isPartB } = data || {};
 
       // Safe formatter helper
       const fmt = (val) => {
@@ -20,16 +20,23 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
           return Number(val).toLocaleString('en-IN');
       };
 
+      // 1. Header Logic
       let statusMsg = "Form 16 Parsed Successfully";
       let subMsg = `Review extracted data for FY ${financialYear}`;
       
       if (isPartA && !isPartB) {
           statusMsg = "Part A (TDS Certificate) Parsed";
-          subMsg = "TDS data extracted. Please upload Part B for Salary Auto-fill.";
-      } else if (isPartB) {
+          subMsg = "TDS data specifically extracted.";
+      } else if (isPartB && !isPartA) {
           statusMsg = "Part B (Salary Details) Parsed";
-          subMsg = "Salary details extracted for Auto-fill.";
+          subMsg = "Salary data extracted for Auto-fill.";
+      } else if (isPartA && isPartB) {
+          statusMsg = "Full Form-16 Parsed Successfully";
+          subMsg = "Both TDS and Salary details extracted.";
       }
+
+      // 2. Button Instruction
+      const primaryActionText = !isPartB ? "Upload Part B (Salary Details)" : "Proceed to Filing";
 
       return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -60,8 +67,8 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
                   <FileText size={18} className="text-purple-500" /> TDS Summary
                </h4>
                <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 space-y-1">
-                  <InfoRow label="Total Amount Paid" value={`₹${fmt(tds.totalamount)}`} />
-                  <InfoRow label="Total Tax Deducted" value={`₹${fmt(tds.taxDeducted)}`} className="text-red-600 font-bold" />
+                  <InfoRow label="Total Amount Paid" value={`₹${fmt(data.grossSalary)}`} /> 
+                  <InfoRow label="Total Tax Deducted" value={`₹${fmt(data.tdsDeducted)}`} className="text-red-600 font-bold" />
                </div>
             </div>
             
@@ -71,13 +78,13 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
                   <FileText size={18} className="text-green-500" /> Salary Breakdown (Part B)
                </h4>
                <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 grid md:grid-cols-2 gap-x-8 gap-y-2">
-                    <InfoRow label="Gross Salary" value={`₹${fmt(salary.gross)}`} />
-                    <InfoRow label="All Allowances (Exempt)" value={`₹${fmt((salary.hra || 0) + (salary.lta || 0))}`} />
+                    <InfoRow label="Gross Salary" value={`₹${fmt(data.grossSalary)}`} />
+                    <InfoRow label="Exemptions u/s 10" value={`₹${fmt(data.exemptionsSection10)}`} />
                     <div className="col-span-2 my-2 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
-                    <InfoRow label="Standard Deduction" value={`₹${fmt(salary.standardDeduction)}`} />
-                    <InfoRow label="Professional Tax" value={`₹${fmt(salary.professionalTax)}`} />
+                    <InfoRow label="Standard Deduction" value={`₹${fmt(data.standardDeduction)}`} />
+                    <InfoRow label="Professional Tax" value={`₹${fmt(data.professionalTax)}`} />
                     <div className="col-span-2 my-2 border-t border-gray-300 dark:border-gray-600"></div>
-                    <InfoRow label="Net Taxable Income" value={`₹${fmt(salary.netTaxable)}`} className="text-lg font-bold text-blue-600" />
+                    <InfoRow label="Net Taxable Income" value={`₹${fmt(data.taxableSalary)}`} className="text-lg font-bold text-blue-600" />
                </div>
             </div>
           </div>
@@ -85,7 +92,7 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
           <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
              <Button variant="outline" onClick={onReupload}>Upload Different File</Button>
              <Button onClick={onConfirm} className="flex items-center gap-2">
-                Proceed to Filing <ArrowRight size={18} />
+                {primaryActionText} <ArrowRight size={18} />
              </Button>
           </div>
         </div>
