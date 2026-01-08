@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { FileText, TrendingUp, AlertCircle, CheckCircle, ArrowRight, Download, Calculator, PiggyBank, Shield } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import DashboardState from '../DashboardState'; // [NEW] Progress System
 
 const TaxOverview = () => {
     const { user } = useAuth();
@@ -70,6 +71,9 @@ const TaxOverview = () => {
                     </div>
                 </div>
             </header>
+
+            {/* [NEW] Progress & State System */}
+            <DashboardState />
 
             {/* Central Summary Card */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

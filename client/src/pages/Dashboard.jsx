@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Container from '../components/Layout/Container';
+import DashboardState from '../components/DashboardState';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -28,6 +29,9 @@ const Dashboard = () => {
         <div className="py-12">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
+              {/* [NEW] Progress System */}
+              <DashboardState />
+              
               <h2 className="text-2xl font-semibold mb-4">You are logged in!</h2>
               <p>This is the protected dashboard area. Only authenticated users can see this.</p>
               
