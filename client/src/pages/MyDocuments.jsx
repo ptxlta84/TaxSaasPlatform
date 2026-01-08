@@ -32,6 +32,18 @@ const MyDocuments = () => {
         }
     };
 
+    const handleDocumentClick = (doc) => {
+        // CLIENT-SIDE FIX: Ensure URL has version number if missing
+        let url = doc.originalUrl;
+        if (url && url.includes('cloudinary.com') && !url.includes('/v1') && !url.includes('/v2')) {
+            const version = 'v' + Math.floor(Date.now() / 1000);
+            url = url.replace('image/upload/', `image/upload/${version}/`);
+        }
+        
+        // Update selected doc with fixed URL
+        setSelectedDoc({ ...doc, originalUrl: url });
+    };
+
     const handleRetryPreview = () => {
         setPreviewKey(prev => prev + 1);
     };
@@ -75,7 +87,7 @@ const MyDocuments = () => {
                         {documents.map(doc => (
                             <div 
                                 key={doc._id}
-                                onClick={() => setSelectedDoc(doc)}
+                                onClick={() => handleDocumentClick(doc)}
                                 className={`p-4 rounded-lg cursor-pointer transition-all border ${
                                     selectedDoc?._id === doc._id 
                                     ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
