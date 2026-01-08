@@ -88,7 +88,8 @@ app.use('/api/admin', require('./src/routes/admin.routes')); // Admin Routes (RB
 app.use('/api/income', require('./src/routes/income.routes'));
 app.use('/api/deductions', require('./src/routes/deduction.routes'));
 app.use('/api/documents', require('./src/routes/documents.js'));
-app.use('/api/dashboard', require('./src/routes/dashboard')); // [NEW] Dashboard State Route // [NEW] Document Proxy
+app.use('/api/dashboard', require('./src/routes/dashboard'));
+app.use('/api/debug', require('./src/routes/debug')); // [NEW] Debug Tools
 app.use('/api', require('./src/routes/health')); // Mount /health routes
 
 // Default Route
