@@ -97,6 +97,23 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+// EMERGENCY DEBUG ENDPOINT (Direct GET)
+app.get('/api/debug/form16-upload', (req, res) => {
+  console.log('📄 DEBUG: Direct GET hit');
+  res.json({
+    success: true,
+    extractedData: {
+      employer: { 
+        name: "Test Corp (Restored)",
+        tan: "TEST12345X",
+        address: "Restored Debug Route"
+      },
+      tdsDeducted: 75000,
+      grossSalary: 850000
+    }
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

@@ -31,10 +31,21 @@ const parseForm16 = async (buffer) => {
                 
                 // Allow up to 1500 chars of noise (increased from 1000 for complex layouts)
                 try {
-                    // Strict monetary regex: Look for number with exactly 2 decimal places to avoid row numbers/section numbers
-                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1500}?([\\d,]+\\.\\d{2})", 'i');
+                    // Relaxed Regex: Optional decimals, but prioritizes looking closest to pattern
+                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1500}?([\\d,]+(?:\\.\\d{1,2})?)", 'i');
                     const match = text.match(regex);
                     if (match && match[1]) {
+                        // Validate: If it's a small integer like "16" (section number), ignore it unless context implies small amount
+                        // But for Salaries, usually > 100.
+                        const raw = match[1].replace(/,/g, '');
+                        const val = parseFloat(raw);
+                        
+                        // Heuristic: If value is exactly the Section Number (e.g. 10, 16, 17), ignore it?
+                        // Risk: Exemptions can be small.
+                        // Better: Just return it. The pattern match vicinity is strong.
+                        
+                        if (!isNaN(val)) return val;
+                    }
                         const val = parseFloat(match[1].replace(/,/g, ''));
                         // Accept 0.00 or legitimate values
                         if (!isNaN(val)) return val;

@@ -18,14 +18,16 @@ const TaxOverview = () => {
 
     const fetchSummary = async () => {
         try {
+            console.log("Fetching Tax Summary from:", `${API_URL}/tax/summary`); // DEBUG LOG
             const token = localStorage.getItem('token');
             const res = await axios.get(`${API_URL}/tax/summary`, {
                 headers: { 'x-auth-token': token }
             });
+            console.log("Tax Summary Received:", res.data); // DEBUG LOG
             setSummary(res.data);
             setLoading(false);
         } catch (err) {
-            console.error(err);
+            console.error("Tax Summary Fetch Failed:", err);
             setLoading(false);
         }
     };

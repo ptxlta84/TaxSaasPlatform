@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  server:
+  backend:
     build: ./server
     ports:
       - "5000:5000"
@@ -26,7 +26,7 @@ services:
     ports:
       - "3000:80" # Map host 3000 to container 80 (nginx)
     depends_on:
-      - server
+      - backend
     networks:
       - app-network
 
