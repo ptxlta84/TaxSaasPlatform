@@ -12,12 +12,14 @@ const InfoRow = ({ label, value, className = "" }) => (
 
 const Form16Preview = ({ data, onConfirm, onReupload }) => {
   try {
-      const { 
-          employer = {}, 
-          financialYear = '2024-25', 
-          parsedPart, 
-          form16Stage 
-      } = data || {};
+      // PROPS HYDRATION: Handle both raw API response (nested in extractedData) and direct objects
+      const rootPayload = data || {};
+      const extracted = rootPayload.extractedData || {};
+      
+      const employer = extracted.employer || rootPayload.employer || {};
+      const financialYear = rootPayload.financialYear || '2024-25';
+      const parsedPart = rootPayload.parsedPart;
+      const form16Stage = rootPayload.form16Stage; // Check both root and extracted? usually root.
       
       const isPartA = parsedPart === 'A' || form16Stage === 'PART_A_PARSED';
       const isPartB = parsedPart === 'B' || form16Stage === 'PART_B_PARSED' || form16Stage === 'CONSOLIDATED';

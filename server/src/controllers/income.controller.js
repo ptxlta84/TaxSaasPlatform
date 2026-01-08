@@ -1,4 +1,7 @@
 const IncomeDetails = require('../models/IncomeDetails');
+const IncomeTaxReturn = require('../models/IncomeTaxReturn');
+const TaxProfile = require('../models/TaxProfile');
+const { calculateTax } = require('../utils/taxCalculator');
 
 // @desc    Get Income Details
 // @route   GET /api/income
@@ -124,6 +127,34 @@ exports.uploadForm16 = async (req, res) => {
         }
 
         await income.save();
+
+        // 4. TRIGGER AUTO-CALCULATION (CRITICAL FIX)
+        try {
+            const profile = await TaxProfile.findOne({ user: req.user.id }) || {};
+            const taxResult = calculateTax(income, profile);
+             
+            let itr = await IncomeTaxReturn.findOne({ user: req.user.id });
+            if (!itr) itr = new IncomeTaxReturn({ user: req.user.id });
+            
+            // Use existing regime preference or Recommendation
+            const regimeType = itr.regime || (taxResult.recommendation === 'New Regime' ? 'new' : 'old');
+            const data = regimeType === 'new' ? taxResult.newRegime : taxResult.oldRegime;
+            
+            itr.computation = {
+                ...itr.computation,
+                taxableIncome: data.taxableIncome,
+                taxPayable: data.breakdown.baseTax,
+                cess: data.breakdown.cess,
+                totalTaxLiability: data.taxPayable
+            };
+            itr.status = 'calculated';
+            if(income.salary.netSalary > 0) itr.status = 'calculated'; // Confirm status update
+
+            await itr.save();
+            console.log(`Tax Recalculated (${regimeType}):`, itr.computation.totalTaxLiability);
+        } catch (calcErr) {
+            console.error("Auto-calculation failed:", calcErr);
+        }
 
         // FORENSIC LOGGING (MANDATORY)
         console.log(`DETECTED_FORM16_PART = ${parsedPart}`);

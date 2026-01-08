@@ -156,7 +156,7 @@ const TaxProfile = () => {
                         </div>
                         <div>
                             <label className="text-xs text-gray-500 uppercase">PAN Number</label>
-                            <div className="font-medium text-gray-900 dark:text-white">{userInfo?.panNumber || 'Not Provided'}</div>
+                            <div className="font-medium text-gray-900 dark:text-white">{userInfo?.panNumber || <span className="text-orange-500 italic text-xs">No PAN Linked</span>}</div>
                         </div>
                         <div>
                             <label className="text-xs text-gray-500 uppercase">Mobile</label>

@@ -128,12 +128,46 @@ const parseForm16 = async (buffer) => {
 
         // 6. Employer Details
         console.log("Debug: Attempting Employer Extraction...");
-        const employerName = extractString([
-            "Name and address of the Employer", 
-            "Name and address of the Deductor",
-            "Employer Name"
-        ]);
-        console.log(`Debug: Employer Name result: "${employerName}"`);
+        
+        // Strategy: Look for "Name and address of the Employer" then capture subsequent lines
+        let employerName = "Unknown Employer";
+        let employerAddress = "Address not found";
+        
+        try {
+             // Find the header index
+             const headerRegex = /Name\s+and\s+address\s+of\s+(?:the\s+)?(?:Employer|Deductor)/i;
+             const headerMatch = text.match(headerRegex);
+             
+             if (headerMatch) {
+                 // capture next 200 chars
+                 const start = headerMatch.index + headerMatch[0].length;
+                 const chunk = text.substring(start, start + 300);
+                 
+                 // Split by newlines (assuming PDF text extraction preserves roughly line breaks or groupings)
+                 // Clean up chunk: remove multiple spaces/newlines
+                 const lines = chunk.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 2 && !l.includes('PAN') && !l.includes('TAN'));
+                 
+                 if (lines.length > 0) {
+                     employerName = lines[0]; // First line is usually name
+                     if (lines.length > 1) {
+                         employerAddress = lines.slice(1, 4).join(', '); // Next few lines are address
+                     }
+                 }
+             }
+        } catch (e) {
+            console.error("Employer Extraction Error:", e);
+        }
+
+        // Fallback for Name if above failed specific regex
+        if (employerName === "Unknown Employer") {
+             employerName = extractString([
+                "Name and address of the Employer", 
+                "Name and address of the Deductor",
+                "Employer Name"
+            ]);
+        }
+
+        console.log(`Debug: Employer Name: "${employerName}", Address: "${employerAddress}"`);
         
         // 7. Income from Other Sources & House Property (New Requirement)
         const incomeOtherSources = extractValue([ // often 192 (2B)
@@ -149,7 +183,7 @@ const parseForm16 = async (buffer) => {
         // TAN
         // TAN pattern is standard: 4 alpha, 5 numeric, 1 alpha. Look specifically near header if generic search fails
         let tan = "";
-        const tanMatch = text.match(/TAN of the Deductor[\s\S]{0,100}?([A-Z]{4}\d{5}[A-Z])/i); 
+        const tanMatch = text.match(/TAN\s+(?:of\s+the\s+Deductor)?[\s\S]{0,100}?([A-Z]{4}\d{5}[A-Z])/i); 
         if (tanMatch) {
             tan = tanMatch[1];
             console.log("Debug: TAN found near header:", tan);
@@ -163,6 +197,7 @@ const parseForm16 = async (buffer) => {
                  console.log("Debug: TAN NOT FOUND");
              }
         }
+
 
 
         // --- STRICT CLASSIFICATION STRATEGY ---
@@ -229,7 +264,7 @@ const parseForm16 = async (buffer) => {
             employer: {
                 name: employerName !== 'Unknown Employer' ? employerName : "Employer (Name not found)",
                 tan: tan,
-                address: "" 
+                address: employerAddress !== 'Address not found' ? employerAddress : "" 
             },
             grossSalary,
             exemptionsSection10,
