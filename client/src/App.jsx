@@ -20,7 +20,9 @@ import ForeignAssetsReporting from './components/Dashboard/Tools/ForeignAssetsRe
 import ITR2Wizard from './components/Dashboard/Wizard/ITR2/ITR2Wizard';
 import NotificationCenter from './components/Dashboard/Notifications/NotificationCenter';
 import NotificationPreferences from './components/Dashboard/Notifications/NotificationPreferences';
-import DocumentVault from './components/Dashboard/Documents/DocumentVault';
+import NotificationPreferences from './components/Dashboard/Notifications/NotificationPreferences';
+import MyDocuments from './pages/MyDocuments'; // [NEW] Using new Proxy-enabled Page
+import DocumentDiagnostic from './pages/DocumentDiagnostic'; // [NEW] Diagnostic Page
 import TaxValidationDashboard from './components/Dashboard/Admin/TaxValidationDashboard';
 import TaxProfile from './components/Dashboard/Profile/TaxProfile';
 import TaxEstimator from './components/Dashboard/Tools/TaxEstimator';
@@ -60,7 +62,9 @@ function App() {
              <Route path="house-property" element={<HousePropertyCalculator />} />
              <Route path="foreign-assets" element={<ForeignAssetsReporting />} />
              <Route path="itr-2-filing" element={<ITR2Wizard />} />
-             <Route path="documents" element={<DocumentVault />} />
+             <Route path="itr-2-filing" element={<ITR2Wizard />} />
+             <Route path="documents" element={<MyDocuments />} />
+             <Route path="diagnostic" element={<DocumentDiagnostic />} />
           </Route>
 
           {/* Admin Routes */}

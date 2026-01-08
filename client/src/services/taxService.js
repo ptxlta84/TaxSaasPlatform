@@ -37,5 +37,11 @@ export const taxService = {
      // Legacy wrapper, calls uploadDocument internally after getting draft
      // For now, we will assume we get a draft first. This will be refactored in the Component.
      throw new Error("Use uploadDocument instead");
+  },
+
+  // Get current income details (for state hydration)
+  getIncomeDetails: async () => {
+      const response = await api.get('/income/details');
+      return response.data;
   }
 };

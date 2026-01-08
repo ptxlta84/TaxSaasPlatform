@@ -13,6 +13,45 @@ const Form16Upload = () => {
   const [dragActive, setDragActive] = useState(false);
 
   const [stage, setStage] = useState('NONE');
+  
+  // LOGICAL WORKFLOW FIX: Hydrate state on mount
+  React.useEffect(() => {
+      const fetchState = async () => {
+          try {
+              const income = await taxService.getIncomeDetails();
+              if (income && income.form16Stage && income.form16Stage !== 'NONE') {
+                   console.log('[Form16Upload] Hydrating State:', income);
+                   setStage(income.form16Stage);
+                   
+                   // Reconstruct parsedData for Preview if Part B is already done
+                   let parsedPart = 'A';
+                   if (income.form16Stage.includes('PART_B')) parsedPart = 'B';
+                   
+                   setParsedData({
+                       parsedPart,
+                       form16Stage: income.form16Stage,
+                       extractedData: {
+                           employer: income.employer,
+                           salary: income.salary, // Will be populated if Part B done
+                           // TDS is not stored in income details directly in the same shape, 
+                           // but for hydration purposes, we prioritize Salary display.
+                           // ideally we should store TDS summary too, but for Part B view, Salary is key.
+                           taxableSalary: income.grossTotalIncome // heuristic
+                       },
+                       __debug: {
+                           msg: "Hydrated from Backend Persistence",
+                           stage: income.form16Stage
+                       }
+                   });
+              }
+          } catch (err) {
+              // No existing state or 404, ignore
+              console.log('[Form16Upload] No existing session state found.');
+          }
+      };
+      
+      fetchState();
+  }, []);
 
   const handleDrag = (e) => {
     e.preventDefault();

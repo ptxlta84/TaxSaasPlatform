@@ -26,13 +26,21 @@ const debugForm16 = async (filename) => {
         console.log("\n\n--- RAW PDF TEXT DUMP (First 2000 chars) ---");
         const rawData = await pdf(dataBuffer);
         // Search for specific keywords and print context
-        const keywords = ["Standard deduction", "Income chargeable", "Net Taxable Income"];
+        // Search for specific keywords and print context
+        const keywords = [
+            "Section 10", 
+            "Tax on employment", 
+            "Professional Tax", 
+            "entertainment allowance",
+            "Gross Salary",
+            "Salary as per provisions"
+        ];
         console.log("\n--- KEYWORD CONTEXT ---");
         keywords.forEach(kw => {
             const idx = rawData.text.indexOf(kw);
             if (idx !== -1) {
                 console.log(`\nFound '${kw}' at index ${idx}:`);
-                console.log(rawData.text.substring(idx, idx + 500).replace(/\n/g, '\\n'));
+                console.log(rawData.text.substring(idx - 100, idx + 400).replace(/\n/g, '\\n'));
             } else {
                 console.log(`\n'${kw}' NOT FOUND`);
             }
