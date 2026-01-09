@@ -49,5 +49,11 @@ export const taxService = {
   getIncomeDetails: async () => {
       const response = await api.get('/income/details');
       return response.data;
+  },
+
+  // Reset/Clear Data
+  resetData: async () => {
+    const response = await api.delete('/tax/reset');
+    return response.data;
   }
 };

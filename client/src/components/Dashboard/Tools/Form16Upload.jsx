@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UploadCloud, FileText, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileText, AlertCircle, Trash2 } from 'lucide-react';
 import { taxService } from '../../../services/taxService';
 import Form16Preview from './Form16Preview';
 
@@ -178,6 +179,21 @@ const Form16Upload = () => {
       // We keep 'stage' state to show correct prompt (e.g. "Upload Part B")
   };
 
+  const handleReset = async (e) => {
+    e.stopPropagation();
+    if(window.confirm('Are you sure? This will delete all your uploaded Form 16s and Tax Data. This operation is for testing.')) {
+        try {
+            await taxService.resetData();
+            setStage('NONE');
+            setParsedData(null);
+            setFile(null);
+            alert('Data Cleared!');
+        } catch(err) {
+            alert('Failed to reset: ' + err.message);
+        }
+    }
+  };
+
   if (parsedData) {
       return <Form16Preview data={parsedData} onConfirm={handleConfirm} onReupload={handleReupload} />;
   }
@@ -200,9 +216,18 @@ const Form16Upload = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upload Form 16</h2>
-        <p className="text-gray-500 dark:text-gray-400">Step-by-step upload for Part A (TDS) and Part B (Salary).</p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upload Form 16</h2>
+            <p className="text-gray-500 dark:text-gray-400">Step-by-step upload for Part A (TDS) and Part B (Salary).</p>
+        </div>
+        <button 
+           onClick={handleReset}
+           className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg flex items-center gap-2 text-sm transition-colors"
+           title="Reset All Data (Testing)"
+        >
+            <Trash2 size={16} /> Reset
+        </button>
       </div>
 
       <div 

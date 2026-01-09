@@ -19,7 +19,7 @@ const MyDocuments = () => {
     const fetchDocuments = async () => {
         try {
             setLoading(true);
-            const res = await api.get('/documents'); // Uses new proxy controller
+            const res = await api.get('/tax/documents'); // Fixed: Uses tax routes endpoint
             setDocuments(res.data);
             if (res.data.length > 0) {
                  setSelectedDoc(res.data[0]);

@@ -307,10 +307,48 @@ const getTaxSummary = async (req, res) => {
     }
 };
 
+// @desc    Get All Uploaded Documents
+// @route   GET /api/tax/documents
+// @access  Private
+const getDocuments = async (req, res) => {
+    try {
+        const form16s = await Form16.find({ user: req.user._id }).sort({ createdAt: -1 });
+        
+        // Map to standardized format for frontend
+        const docs = form16s.map(doc => ({
+            _id: doc._id,
+            fileName: doc.originalFileName || `Form16-${doc.financialYear}.pdf`,
+            originalUrl: doc.fileUrl, // Ensure this path is accessible (e.g. /uploads/...) or S3
+            uploadedAt: doc.createdAt,
+            financialYear: doc.financialYear,
+            category: 'form16'
+        }));
+
+        res.status(200).json(docs);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch documents', error: error.message });
+    }
+};
+
+// @desc    Reset/Clear All My Tax Data (For Testing)
+// @route   DELETE /api/tax/reset
+// @access  Private
+const resetTaxData = async (req, res) => {
+    try {
+        await Form16.deleteMany({ user: req.user._id });
+        await IncomeTaxReturn.deleteMany({ user: req.user._id });
+        res.status(200).json({ message: 'All tax data cleared successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to reset data', error: error.message });
+    }
+};
+
 module.exports = {
     calculateAndSaveTax,
     getMyReturns,
     uploadForm16,
     estimateTax,
-    getTaxSummary
+    getTaxSummary,
+    resetTaxData,
+    getDocuments
 };
