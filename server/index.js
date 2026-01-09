@@ -23,23 +23,6 @@ if (missingEnv.length > 0) {
     console.log('✅ Critical environment variables are present.');
 }
 
-// DEBUG: Log Directory Structure to find React Build
-const fs = require('fs');
-const path = require('path');
-console.log('📂 DEBUG: Current Directory (__dirname):', __dirname);
-try {
-    console.log('📂 DEBUG: Root Listing:', fs.readdirSync(__dirname));
-    const publicPath = path.join(__dirname, 'public');
-    console.log('📂 DEBUG: Public Path Target:', publicPath);
-    if (fs.existsSync(publicPath)) {
-        console.log('📂 DEBUG: Public Folder Listing:', fs.readdirSync(publicPath));
-    } else {
-        console.error('❌ DEBUG: Public folder DOES NOT EXIST at:', publicPath);
-    }
-} catch (e) {
-    console.error('❌ DEBUG: Error listing directories:', e.message);
-}
-
 // Warn for encryption keys (Lazy loaded, but good to have)
 if (!process.env.ENCRYPTION_KEY || !process.env.ENCRYPTION_IV) {
     console.warn('⚠️ WARNING: ENCRYPTION_KEY or ENCRYPTION_IV is missing. Encryption features will fail.');
