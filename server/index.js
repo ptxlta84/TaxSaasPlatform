@@ -108,7 +108,8 @@ const path = require('path');
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-app.get('*', (req, res) => {
+// Express 5 requires Regex for wildcard match, '*' is no longer valid string path
+app.get(/.*/, (req, res) => {
     // If not an API route (handled above), send React index.html
     const indexPath = path.join(__dirname, '../client/dist/index.html');
     if (require('fs').existsSync(indexPath)) {
