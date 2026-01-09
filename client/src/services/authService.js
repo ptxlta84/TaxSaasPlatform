@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = '/api'; // FORCED LOCAL PROXY
-// const API_URL = import.meta.env.VITE_API_URL || '/api';
+// Reverted to use Env Var for Production (Render needs full URL)
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 console.log('AuthService API URL:', API_URL); // Debug Production URL
 
 // Create axios instance
