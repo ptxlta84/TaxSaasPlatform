@@ -3,8 +3,10 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure uploads directory exists
-const uploadDir = 'uploads/';
+// Use /tmp for uploads to avoid permission issues in Docker non-root
+const uploadDir = '/tmp/'; 
 if (!fs.existsSync(uploadDir)) {
+    // /tmp usually exists, but good practice
     fs.mkdirSync(uploadDir);
 }
 

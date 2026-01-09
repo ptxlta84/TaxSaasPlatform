@@ -1,4 +1,3 @@
-```javascript
 import React, { useState } from 'react';
 import Button from '../components/Button/Button';
 import { ShieldCheck, AlertTriangle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
@@ -120,4 +119,3 @@ const DocumentDiagnostic = () => {
 };
 
 export default DocumentDiagnostic;
-```

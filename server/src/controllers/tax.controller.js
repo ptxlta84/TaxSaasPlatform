@@ -1,6 +1,7 @@
 const IncomeTaxReturn = require('../models/IncomeTaxReturn');
 const Form16 = require('../models/Form16');
-const form16Parser = require('../services/form16Parser');
+const { parseForm16 } = require('../utils/form16Parser');
+const fs = require('fs');
 
 // Helper: Calculate Tax (Simplified New Regime 2024-25)
 const calculateTaxLiability = (taxableIncome) => {
@@ -109,8 +110,11 @@ const uploadForm16 = async (req, res) => {
 
         const filePath = req.file.path;
         
-        // Use Parser Service
-        const extractedData = await form16Parser.parsePDF(filePath);
+        // Read file buffer for real parser
+        const fileBuffer = fs.readFileSync(filePath);
+
+        // Use Real Parser Utility
+        const extractedData = await parseForm16(fileBuffer);
 
         // Save Extracted Data
         const savedForm16 = await Form16.create({

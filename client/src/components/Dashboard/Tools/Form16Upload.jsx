@@ -95,27 +95,49 @@ const Form16Upload = () => {
           const itr = await taxService.startFiling('2024-2025');
           const itrId = itr._id;
 
-          // 2. Upload to Cloudinary via Backend
-          // Note: taxService.uploadDocument should match the new response structure
-          // Response now includes: { message, parsedPart, form16Stage, extractedData, __debug }
-          const res = await taxService.uploadDocument(itrId, uploadedFile, 'form16');
+          // 2. Upload & Parse
+          const res = await taxService.uploadForm16(uploadedFile);
           
           console.log('[Form16Upload] Server Response:', res);
 
-          // FORCE STATE UPDATE: Merge response ensuring stage/part are top-level
-          // STRICT: Do not rely on undefined checks. Use what server sent.
+          // FORCE STATE UPDATE: Map 'parsed' from tax.controller to 'extractedData'
+          const parsed = res.parsed;
+          let newStage = stage;
+          let parsedPart = 'UNKNOWN';
+
+          // Determine stage based on what the parser found
+          if (parsed.isPartA && !parsed.isPartB) {
+              newStage = 'PART_A_PARSED';
+              parsedPart = 'A';
+          } else if (parsed.isPartB && !parsed.isPartA) {
+              newStage = 'PART_B_PARSED';
+              parsedPart = 'B';
+          } else if (parsed.isPartA && parsed.isPartB) {
+              // Combined File Found
+              // If we were at NONE, treat this as completing Part A (step 1)
+              // If we were at PART_A_PARSED, treat this as completing Part B (step 2)
+              // This respects the user's strict 2-step flow preference
+              if (stage === 'NONE') {
+                  newStage = 'PART_A_PARSED';
+                  parsedPart = 'A';
+                  // Note: We could technically say 'CONSOLIDATED' here but user wants strict steps.
+                  // We accept it as A-Success.
+              } else {
+                  newStage = 'CONSOLIDATED';
+                  parsedPart = 'B';
+              }
+          }
+
           const newData = {
-              parsedPart: res.parsedPart,
-              form16Stage: res.form16Stage,
-              extractedData: res.extractedData,
+              parsedPart: parsedPart,
+              form16Stage: newStage,
+              extractedData: parsed, 
               message: res.message,
-              __debug: res.__debug // Pass debug info to Preview
+              __debug: { msg: "Parsed via Real Regex Engine", flags: { A: parsed.isPartA, B: parsed.isPartB } } 
           };
           
           setParsedData(newData); 
-          if (res.form16Stage) {
-              setStage(res.form16Stage);
-          }
+          setStage(newStage);
 
       } catch (err) {
           console.error(err);

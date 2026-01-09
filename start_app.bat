@@ -6,5 +6,5 @@ echo.
 echo Starting everything with Docker...
 echo (This might take a moment to load the database and servers)
 echo.
-docker-compose up
+docker-compose up --build
 pause

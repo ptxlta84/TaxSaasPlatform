@@ -33,10 +33,16 @@ export const taxService = {
     return response.data;
   },
 
-  uploadForm16: async () => {
-     // Legacy wrapper, calls uploadDocument internally after getting draft
-     // For now, we will assume we get a draft first. This will be refactored in the Component.
-     throw new Error("Use uploadDocument instead");
+  uploadForm16: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file); // Matches backend 'upload.single("file")'
+
+    const response = await api.post('/tax/upload-form16', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
   },
 
   // Get current income details (for state hydration)

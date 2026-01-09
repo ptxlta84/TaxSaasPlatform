@@ -35,10 +35,17 @@ const app = express();
 // Trust Render's proxy (Required for Rate Limiting & Secure Cookies)
 app.set('trust proxy', 1);
 
+// Global Request Logger
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
+    next();
+});
+
 // Security Middleware
 app.use(helmet());
 const whitelist = [
     'http://localhost:5173', 
+    'http://localhost:3000', // Added for local Docker environment
     'https://taxsaas-client.onrender.com',
     'https://paytax.com',
     'https://www.paytax.com'
@@ -65,16 +72,19 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
+// Routes
 // Strict Rate Limiting for Auth
-const authLimiter = rateLimit({
+/* const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 attempts per IP
     message: { message: 'Too many login attempts, please try again after 15 minutes' }
-});
+}); */
 
 // Routes
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/otp', authLimiter);
+
+// Routes
+// app.use('/api/auth/login', authLimiter); // Disabled for debugging
+// app.use('/api/auth/otp', authLimiter); // Disabled for debugging
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/tax', require('./src/routes/tax.routes'));
 app.use('/api/itr', require('./src/routes/itr.routes'));

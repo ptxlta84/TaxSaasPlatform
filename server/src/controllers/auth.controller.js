@@ -110,11 +110,21 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(`[DEBUG] Login Attempt - Email: ${email}, Password: ${password}`); // Log credentials (only for debug!)
 
   try {
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user) {
+        console.log(`[DEBUG] Login Failed - User not found: ${email}`);
+        return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    console.log(`[DEBUG] User found. Password Match Result: ${isMatch}`);
+
+    if (!isMatch) {
+      console.log(`[DEBUG] Login Failed - Password mismatch`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 

@@ -23,6 +23,8 @@ COPY --from=builder /app .
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
+# Create uploads directory and set permissions
+RUN mkdir -p uploads && chown -R nodejs:nodejs /app/uploads
 USER nodejs
 
 EXPOSE 5000

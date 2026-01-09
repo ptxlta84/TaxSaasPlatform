@@ -29,22 +29,44 @@ const parseForm16 = async (buffer) => {
                 // Make the input pattern flexible regarding spaces
                 const regexPattern = typeof pattern === 'string' ? flex(pattern) : pattern;
                 
-                // Allow up to 1500 chars of noise (increased from 1000 for complex layouts)
                 try {
-                    // Relaxed Regex: Optional decimals, but prioritizes looking closest to pattern
-                    const regex = new RegExp(regexPattern + "[\\s\\S]{0,1500}?([\\d,]+(?:\\.\\d{1,2})?)", 'i');
-                    const match = text.match(regex);
-                    if (match && match[1]) {
-                        // Validate: If it's a small integer like "16" (section number), ignore it unless context implies small amount
-                        // But for Salaries, usually > 100.
-                        const raw = match[1].replace(/,/g, '');
+                    // CRITICAL FIX: Use global flag 'g' and loop to find VALID match
+                    // We look for the pattern ONCE, then scan for numbers AFTER it using a separate technique
+                    // OR: Use a single regex with 'g' is tricky because the lookahead is variable.
+                    // BETTER: Find the header index, then scan the substring after it.
+                    
+                    const headerRegex = new RegExp(regexPattern, 'i');
+                    const headerMatch = text.match(headerRegex);
+
+                    if (!headerMatch) continue;
+
+                    // Start searching from end of header
+                    const searchStartPayload = text.substring(headerMatch.index + headerMatch[0].length);
+                    
+                    // Look for numbers in the next 2000 chars
+                    const chunk = searchStartPayload.substring(0, 2000);
+                    
+                    // Find ALL number candidates in this chunk
+                    const numberRegex = /(\d{1,3}(?:,\d{2,3})*(?:.\d{1,2})?)/g;
+                    let numMatch;
+                    
+                    while ((numMatch = numberRegex.exec(chunk)) !== null) {
+                        const raw = numMatch[1].replace(/,/g, '');
                         const val = parseFloat(raw);
+
+                        // Strict filter: Ignore values that match specific Section Numbers
+                        if ([1, 2, 3, 4, 5, 7, 10, 16, 17, 192].includes(val)) {
+                             // console.log(`Debug: Ignored Section Number/Index: ${val}`);
+                             continue;
+                        }
+
+                        // Heuristic: For Major Salary heads, value should be substantial (>100)
+                        if (val < 100 && val !== 0) {
+                             // console.log(`Debug: Ignored suspicious small value: ${val}`);
+                             continue;
+                        }
                         
-                        // Heuristic: If value is exactly the Section Number (e.g. 10, 16, 17), ignore it?
-                        // Risk: Exemptions can be small.
-                        // Better: Just return it. The pattern match vicinity is strong.
-                        
-                        if (!isNaN(val)) return val;
+                        if (!isNaN(val)) return val; // First valid number found
                     }
 
                 } catch (e) {
@@ -78,6 +100,7 @@ const parseForm16 = async (buffer) => {
 
         // 1. Gross Salary (17(1))
         const grossSalary = extractValue([ // Range 1500 handles this easily
+            "Total Gross Salary",
             "Salary as per provisions contained in section 17\\(1\\)",
             "Gross Salary", 
             "Gross Total Income"
@@ -243,10 +266,10 @@ const parseForm16 = async (buffer) => {
         // Part A is ONLY true if ALL strong signals match AND it is NOT Part B (via late exclusion)
         let isPartA = hasCert203 && hasForm16 && hasTaxDetails;
 
-        // EXCLUSION RULE (CRITICAL): Part B Priority
-        if (isPartB) {
-            isPartA = false; 
-        }
+        // EXCLUSION RULE REMOVED: Allow both to be true for Combined PDFs
+        // if (isPartB) {
+        //    isPartA = false; 
+        // }
 
         const resolvedAs = isPartB ? "B" : (isPartA ? "A" : "UNKNOWN");
         
