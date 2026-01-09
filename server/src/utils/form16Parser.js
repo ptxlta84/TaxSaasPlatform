@@ -46,10 +46,7 @@ const parseForm16 = async (buffer) => {
                         
                         if (!isNaN(val)) return val;
                     }
-                        const val = parseFloat(match[1].replace(/,/g, ''));
-                        // Accept 0.00 or legitimate values
-                        if (!isNaN(val)) return val;
-                    }
+
                 } catch (e) {
                     console.error('Regex error for pattern:', regexPattern, e);
                 }

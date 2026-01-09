@@ -1,6 +1,8 @@
+```javascript
 import React, { useState } from 'react';
 import Button from '../components/Button/Button';
 import { ShieldCheck, AlertTriangle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import DebugForm16Upload from '../components/DebugForm16Upload'; // [NEW]
 
 // Simple page to test PDF viewing
 const DocumentDiagnostic = () => {
@@ -107,8 +109,15 @@ const DocumentDiagnostic = () => {
             </div>
         ))}
       </div>
+
+      {/* Form-16 Debugger */}
+      <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Form-16 Debug Tools</h2>
+        <DebugForm16Upload />
+      </div>
     </div>
   );
 };
 
 export default DocumentDiagnostic;
+```
