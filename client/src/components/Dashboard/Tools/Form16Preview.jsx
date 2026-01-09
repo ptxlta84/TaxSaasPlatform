@@ -42,6 +42,9 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       } else if (parsedPart === 'B' && form16Stage === 'PART_B_PARSED') {
           statusMsg = "Part B parsed successfully. Review salary details below.";
           subMsg = "Consolidated view of Employer, TDS, and Salary.";
+      } else if (form16Stage === 'CONSOLIDATED') {
+          statusMsg = "Multi-Employer Data Merged Successfully";
+          subMsg = "Combined Salary & TDS from all uploaded Form-16s.";
       }
 
       // DEV ASSERTION: Prevent regression to generic message for Part A

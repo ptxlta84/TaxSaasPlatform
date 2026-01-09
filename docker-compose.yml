@@ -11,6 +11,7 @@ services:
       - RAZORPAY_KEY_ID=rzp_test_123
       - RAZORPAY_KEY_SECRET=rzp_test_secret
       - RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+    command: npm run dev
     depends_on:
       - mongo
     networks:

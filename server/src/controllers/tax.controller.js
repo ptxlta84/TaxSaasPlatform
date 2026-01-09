@@ -127,10 +127,30 @@ const uploadForm16 = async (req, res) => {
             fileUrl: filePath // In production, this would be an S3 URL
         });
 
+        // --- AGGREGATION LOGIC (Fixed: Multi-Employer Support) ---
+        // Fetch ALL Form-16s for this user & year to calculate totals
+        const allForm16s = await Form16.find({ 
+            user: req.user._id, 
+            financialYear: extractedData.financialYear 
+        });
+
+        const consolidated = allForm16s.reduce((acc, curr) => {
+            acc.salary.gross += (curr.salary?.gross || 0);
+            acc.salary.netTaxable += (curr.salary?.netTaxable || 0);
+            acc.tds.taxDeducted += (curr.tds?.taxDeducted || 0);
+            if(curr.employer?.name) acc.employers.push(curr.employer.name);
+            return acc;
+        }, {
+            salary: { gross: 0, netTaxable: 0 },
+            tds: { taxDeducted: 0 },
+            employers: []
+        });
+
         res.status(200).json({
-            message: 'Form 16 processed successfully',
+            message: `Form 16 processed. Merged data from ${consolidated.employers.length} employers.`,
             data: savedForm16,
-            parsed: extractedData
+            parsed: extractedData,
+            consolidated: consolidated // Frontend should use this for the "Total" view
         });
 
     } catch (error) {

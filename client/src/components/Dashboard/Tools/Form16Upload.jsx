@@ -113,25 +113,42 @@ const Form16Upload = () => {
               newStage = 'PART_B_PARSED';
               parsedPart = 'B';
           } else if (parsed.isPartA && parsed.isPartB) {
-              // Combined File Found
-              // If we were at NONE, treat this as completing Part A (step 1)
-              // If we were at PART_A_PARSED, treat this as completing Part B (step 2)
-              // This respects the user's strict 2-step flow preference
               if (stage === 'NONE') {
                   newStage = 'PART_A_PARSED';
                   parsedPart = 'A';
-                  // Note: We could technically say 'CONSOLIDATED' here but user wants strict steps.
-                  // We accept it as A-Success.
               } else {
                   newStage = 'CONSOLIDATED';
                   parsedPart = 'B';
               }
           }
 
+          // --- MERGE LOGIC START ---
+          const consolidated = res.consolidated;
+          let displayData = parsed;
+
+          if (consolidated && consolidated.employers.length > 0) {
+               // Use the consolidated sums for display
+               displayData = {
+                   ...parsed,
+                   employer: { 
+                       ...parsed.employer, 
+                       name: `Merged: ${consolidated.employers.join(' + ')}` 
+                   },
+                   grossSalary: consolidated.salary.gross,
+                   taxableSalary: consolidated.salary.netTaxable,
+                   tdsDeducted: consolidated.tds.taxDeducted,
+                   // Note: keeping other breakdown fields from the latest file as 'summing' them 
+                   // would require more complex mapping. For now, Totals are what matters.
+               };
+               newStage = 'CONSOLIDATED';
+               parsedPart = 'B'; // Treat as complete
+          }
+          // --- MERGE LOGIC END ---
+
           const newData = {
               parsedPart: parsedPart,
               form16Stage: newStage,
-              extractedData: parsed, 
+              extractedData: displayData, 
               message: res.message,
               __debug: { msg: "Parsed via Real Regex Engine", flags: { A: parsed.isPartA, B: parsed.isPartB } } 
           };

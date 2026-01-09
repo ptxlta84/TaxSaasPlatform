@@ -43,10 +43,10 @@ app.use((req, res, next) => {
 
 // Security Middleware
 app.use(helmet());
-const whitelist = [
     'http://localhost:5173', 
     'http://localhost:3000', // Added for local Docker environment
-    'https://taxsaas-client.onrender.com',
+    'https://taxsaas-server.onrender.com', // Fix for Monolithic Deployment (Self)
+    'https://taxsaas-client.onrender.com', // Legacy
     'https://paytax.com',
     'https://www.paytax.com'
 ];
