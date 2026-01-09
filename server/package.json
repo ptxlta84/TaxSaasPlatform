@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run build && node index.js",
     "dev": "node index.js",
-    "build": "npm install --include=dev --prefix ../client && npm run build --prefix ../client && mkdir -p public && cp -r ../client/dist/* public/",
+    "build": "export NODE_OPTIONS=--max-old-space-size=4096 && npm install --include=dev --prefix ../client && npm run build --prefix ../client && mkdir -p public && cp -r ../client/dist/* public/",
     "lint": "echo 'No linting configured'",
     "type-check": "echo 'No type-check configured'",
     "test": "echo \"No tests specified\" && exit 0"
