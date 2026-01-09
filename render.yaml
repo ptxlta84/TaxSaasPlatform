@@ -1,18 +1,14 @@
-# Render Deployment Configuration (Updated)
+# Render Deployment Configuration (Monolith Docker)
 services:
   - type: web
     name: taxsaas-server
-    env: node
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
+    env: docker
+    dockerfilePath: Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
-      - key: VITE_API_URL
-        value: https://taxsaas-server.onrender.com
       - key: MONGODB_URI
         fromGroup: shared-secrets
       - key: JWT_SECRET
@@ -29,16 +25,6 @@ services:
         fromGroup: shared-secrets
       - key: CLOUDINARY_API_SECRET
         fromGroup: shared-secrets
-    autoDeploy: true
-
-  - type: web
-    name: taxsaas-client
-    env: docker
-    dockerContext: client
-    dockerfilePath: client/Dockerfile
-    envVars:
-      - key: VITE_API_URL
-        value: https://taxsaas-server.onrender.com/api
     autoDeploy: true
 
 envGroups:

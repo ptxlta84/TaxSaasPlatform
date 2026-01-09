@@ -102,9 +102,20 @@ app.use('/api/dashboard', require('./src/routes/dashboard'));
 app.use('/api/debug', require('./src/routes/debug')); // [NEW] Debug Tools
 app.use('/api', require('./src/routes/health')); // Mount /health routes
 
-// Default Route
-app.get('/', (req, res) => {
-    res.send('API is running...');
+// Default Route (Modified for Monolith Deployment)
+// Serve React Static Files (Production Only or when built)
+const path = require('path');
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('*', (req, res) => {
+    // If not an API route (handled above), send React index.html
+    const indexPath = path.join(__dirname, '../client/dist/index.html');
+    if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.send('API is running... (React Client not built or not found)');
+    }
 });
 
 // EMERGENCY DEBUG ENDPOINT (Direct GET)
