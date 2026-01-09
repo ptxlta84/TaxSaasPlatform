@@ -21,9 +21,8 @@ RUN npm ci --omit=dev
 # Copy server source
 COPY server/ .
 # Copy built client assets to where server expects them
-# server/index.js looks in ../client/dist relative to itself
-# So we place it in /app/client/dist
-COPY --from=client-builder /app/client/dist /app/client/dist
+# Simpler structure: Copy directly into server's 'public' folder
+COPY --from=client-builder /app/client/dist /app/server/public
 
 # Create uploads directory (using the fixed /tmp location or just ensure perms)
 # Our code uses /tmp now, but just in case

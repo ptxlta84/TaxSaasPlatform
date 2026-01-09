@@ -106,12 +106,13 @@ app.use('/api', require('./src/routes/health')); // Mount /health routes
 // Serve React Static Files (Production Only or when built)
 const path = require('path');
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// DOCKER: Assets are copied to /app/server/public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Express 5 requires Regex for wildcard match, '*' is no longer valid string path
 app.get(/.*/, (req, res) => {
     // If not an API route (handled above), send React index.html
-    const indexPath = path.join(__dirname, '../client/dist/index.html');
+    const indexPath = path.join(__dirname, 'public/index.html');
     if (require('fs').existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
