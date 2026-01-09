@@ -104,7 +104,7 @@ app.use('/api', require('./src/routes/health')); // Mount /health routes
 
 // Default Route (Modified for Monolith Deployment)
 // Serve React Static Files (Production Only or when built)
-// 'path' is already required at the top level for Debug logs
+const path = require('path');
 // Serve static files from the React app
 // DOCKER: Assets are copied to /app/server/public
 app.use(express.static(path.join(__dirname, 'public')));
