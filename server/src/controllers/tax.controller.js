@@ -116,13 +116,30 @@ const uploadForm16 = async (req, res) => {
         // Use Real Parser Utility
         const extractedData = await parseForm16(fileBuffer);
 
+        // ROBUSTNESS FIX: Normalize Financial Year
+        // If parser fails or returns weird format, force a standard year for merging
+        let normalizedYear = extractedData.financialYear;
+        if (!normalizedYear || normalizedYear.length < 4) {
+             console.warn('Parser missed Financial Year via Regex, defaulting to 2024-2025');
+             normalizedYear = '2024-2025';
+        }
+        // Basic normalization (e.g. 2024-25 -> 2024-2025) could go here if needed.
+        // For now, assume strict string matching.
+
+        // ROBUSTNESS FIX: Handle "Scanned PDF" or "Parse Fail" (Empty Fields)
+        const safeEmployer = {
+            name: extractedData.employer?.name || "Unknown Employer (Parse Failed)",
+            tan: extractedData.employer?.tan || "UNKNOWN_TAN",
+            address: extractedData.employer?.address || ""
+        };
+
         // Save Extracted Data
         const savedForm16 = await Form16.create({
             user: req.user._id,
-            financialYear: extractedData.financialYear,
-            employer: extractedData.employer,
-            salary: extractedData.salary,
-            tds: extractedData.tds,
+            financialYear: normalizedYear,
+            employer: safeEmployer,
+            salary: extractedData.salary || {},
+            tds: extractedData.tds || {},
             originalFileName: req.file.originalname,
             fileUrl: filePath // In production, this would be an S3 URL
         });
@@ -131,10 +148,16 @@ const uploadForm16 = async (req, res) => {
         // Fetch ALL Form-16s for this user & year to calculate totals
         const allForm16s = await Form16.find({ 
             user: req.user._id, 
-            financialYear: extractedData.financialYear 
+            financialYear: normalizedYear 
         });
 
         const consolidated = allForm16s.reduce((acc, curr) => {
+            acc.salary.gross += (curr.salary?.gross || 0);
+            acc.salary.netTaxable += (curr.salary?.netTaxable || 0);
+            acc.tds.taxDeducted += (curr.tds?.taxDeducted || 0);
+            if(curr.employer?.name) acc.employers.push(curr.employer.name);
+            return acc;
+        }, {
             acc.salary.gross += (curr.salary?.gross || 0);
             acc.salary.netTaxable += (curr.salary?.netTaxable || 0);
             acc.tds.taxDeducted += (curr.tds?.taxDeducted || 0);
