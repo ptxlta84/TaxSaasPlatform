@@ -158,12 +158,6 @@ const uploadForm16 = async (req, res) => {
             if(curr.employer?.name) acc.employers.push(curr.employer.name);
             return acc;
         }, {
-            acc.salary.gross += (curr.salary?.gross || 0);
-            acc.salary.netTaxable += (curr.salary?.netTaxable || 0);
-            acc.tds.taxDeducted += (curr.tds?.taxDeducted || 0);
-            if(curr.employer?.name) acc.employers.push(curr.employer.name);
-            return acc;
-        }, {
             salary: { gross: 0, netTaxable: 0 },
             tds: { taxDeducted: 0 },
             employers: []
