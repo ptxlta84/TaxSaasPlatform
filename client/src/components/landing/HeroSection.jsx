@@ -54,7 +54,7 @@ const HeroSection = () => {
           </div>
 
           {/* User Type Tabs */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="inline-flex flex-wrap justify-center gap-1.5 p-1.5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm mb-12">
             {userTypes.map((type) => {
               const Icon = type.icon;
               const isActive = activeUserType === type.id;
@@ -62,13 +62,13 @@ const HeroSection = () => {
                 <button
                   key={type.id}
                   onClick={() => setActiveUserType(type.id)}
-                  className={`flex items-center gap-2 px-4 md:px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 border whitespace-nowrap
+                  className={`flex items-center gap-2 px-5 md:px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap outline-none
                     ${isActive 
-                      ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-105' 
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-primary-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/25 translate-y-[-1px]' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400'
                     }`}
                 >
-                  <Icon size={18} />
+                  <Icon size={18} className={isActive ? 'text-white' : 'opacity-70 group-hover:opacity-100'} />
                   {type.label}
                 </button>
               );
