@@ -62,7 +62,7 @@ exports.getMyBookings = async (req, res) => {
     try {
         const bookings = await Booking.find({ userId: req.user._id }).sort({ createdAt: -1 });
         res.json(bookings);
-    } catch (error) {
+    } catch {
         res.status(500).json({ message: 'Failed to fetch bookings' });
     }
 };

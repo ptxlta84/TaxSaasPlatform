@@ -20,7 +20,7 @@ exports.getIncomeDetails = async (req, res) => {
 };
 
 const { parseForm16 } = require('../utils/form16Parser');
-const DeductionDetails = require('../models/DeductionDetails');
+// const DeductionDetails = require('../models/DeductionDetails');
 
 // @desc    Upload & Parse Form-16
 // @route   POST /api/income/upload-form16

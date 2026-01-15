@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const otpService = require('../services/otpService');
 const { logAction } = require('../services/auditService');
 
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const logger = require('../utils/logger');
 
 // Generate Access and Refresh Tokens
@@ -215,7 +215,7 @@ exports.refreshToken = async (req, res) => {
 // @desc    Logout user / Clear cookie
 // @route   POST /api/auth/logout
 // @access  Private
-exports.logout = async (req, res) => {
+exports.logout = (req, res) => {
   res.cookie('refreshToken', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true
@@ -244,7 +244,7 @@ exports.sendOTP = async (req, res) => {
   try {
     await otpService.generateOTP(mobile);
     res.json({ message: 'OTP sent successfully' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Failed to send OTP' });
   }
 };
@@ -266,7 +266,7 @@ exports.verifyOTP = async (req, res) => {
     } else {
       res.status(400).json({ message: result.message });
     }
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'OTP verification failed' });
   }
 };

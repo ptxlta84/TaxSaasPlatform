@@ -1,5 +1,5 @@
 const IncomeTaxReturn = require('../models/IncomeTaxReturn');
-const axios = require('axios'); // For proxying Cloudinary stream
+// const axios = require('axios');
 
 // @desc    Get All Documents for User (Aggregated from ITRs)
 // @route   GET /api/documents
@@ -78,7 +78,7 @@ exports.getUserDocuments = async (req, res) => {
 };
 
 // SIMPLIFIED PROXY - Version 1.0
-exports.previewDocument = async (req, res) => {
+exports.previewDocument = (req, res) => {
     try {
         const { url } = req.query;
 

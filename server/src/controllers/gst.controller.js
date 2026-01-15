@@ -5,16 +5,7 @@ const GSTRegistration = require('../models/GSTRegistration');
 // @access  Private
 exports.registerGST = async (req, res) => {
     try {
-        const { 
-            legalName, 
-            tradeName, 
-            businessType, 
-            panNumber, 
-            gstin,
-            principalAddress,
-            promoters,
-            bankDetails
-        } = req.body;
+        // const { ... } = req.body; // Removed unused destructuring
 
         // Check if registration already exists for user
         let registration = await GSTRegistration.findOne({ userId: req.user._id });
