@@ -45,7 +45,13 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative pt-20 pb-20 overflow-hidden bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <section className="relative pt-24 pb-32 overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-500">
+      {/* Background Decoration */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-3xl animate-pulse"></div>
+          <div className="absolute top-[20%] -left-[10%] w-[40%] h-[40%] rounded-full bg-purple-400/10 blur-3xl animate-pulse delay-700"></div>
+      </div>
+
       <Container>
         <div className="text-center max-w-4xl mx-auto">
           {/* Trust Badge */}
@@ -53,8 +59,8 @@ const HeroSection = () => {
             <span>🛡️ Trusted by 5M+ Taxpayers</span>
           </div>
 
-          {/* User Type Tabs */}
-          <div className="inline-flex flex-wrap justify-center gap-1.5 p-1.5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm mb-12">
+          {/* User Type Tabs with Glassmorphism */}
+          <div className="inline-flex flex-wrap justify-center gap-2 p-2 rounded-2xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/50 dark:border-gray-700/50 shadow-lg mb-12 ring-1 ring-black/5">
             {userTypes.map((type) => {
               const Icon = type.icon;
               const isActive = activeUserType === type.id;

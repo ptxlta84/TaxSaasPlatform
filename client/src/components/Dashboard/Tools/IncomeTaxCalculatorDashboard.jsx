@@ -5,7 +5,7 @@ import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw, Upl
 import Form16Preview from './Form16Preview';
 // import TaxEstimator from './TaxEstimator.jsx';
 import { useAuth } from '../../../contexts/AuthContext';
-
+import { calculateIncomeTax }  from '../../../utils/taxCalculations/india2024'; // Reuse utility
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }

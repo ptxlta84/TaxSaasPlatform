@@ -9,7 +9,7 @@
     "build": "export NODE_OPTIONS=--max-old-space-size=460 && npm install --include=dev --prefix ../client && npm run build --prefix ../client && mkdir -p public && cp -r ../client/dist/* public/",
     "lint": "echo 'No linting configured'",
     "type-check": "echo 'No type-check configured'",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -38,5 +38,9 @@
     "stripe": "^20.1.0",
     "winston": "^3.19.0",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.2.2"
   }
 }

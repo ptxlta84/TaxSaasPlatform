@@ -10,11 +10,15 @@ const FormInput = React.forwardRef(({
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label 
+          htmlFor={props.id || props.name}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
           {label}
         </label>
       )}
       <input
+        id={props.id || props.name}
         ref={ref}
         type={type}
         className={`appearance-none block w-full px-3 py-2 border ${

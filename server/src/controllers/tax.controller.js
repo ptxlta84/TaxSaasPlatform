@@ -2,6 +2,7 @@ const IncomeTaxReturn = require('../models/IncomeTaxReturn');
 const Form16 = require('../models/Form16');
 const { parseForm16 } = require('../utils/form16Parser');
 const fs = require('fs');
+const { cloudinary } = require('../config/cloudinary');
 
 // Helper: Calculate Tax (Simplified New Regime 2024-25)
 const calculateTaxLiability = (taxableIncome) => {
@@ -133,7 +134,18 @@ const uploadForm16 = async (req, res) => {
             address: extractedData.employer?.address || ""
         };
 
-        // Save Extracted Data
+        // UPLOAD TO CLOUDINARY (Hybrid Approach)
+        // We have the file locally in /tmp (req.file.path), now we push it to Cloud for persistence
+        console.log('Uploading to Cloudinary...');
+        const cloudResult = await cloudinary.uploader.upload(filePath, {
+            folder: 'taxsaas_documents',
+            resource_type: 'auto',
+            use_filename: true, 
+            unique_filename: true
+        });
+        console.log('Cloudinary Upload Success:', cloudResult.secure_url);
+
+        // Save Extracted Data with CLOUDINARY URL
         const savedForm16 = await Form16.create({
             user: req.user._id,
             financialYear: normalizedYear,
@@ -141,7 +153,7 @@ const uploadForm16 = async (req, res) => {
             salary: extractedData.salary || {},
             tds: extractedData.tds || {},
             originalFileName: req.file.originalname,
-            fileUrl: filePath // In production, this would be an S3 URL
+            fileUrl: cloudResult.secure_url // [CHANGED] Use permanent Cloudinary URL instead of local path
         });
 
         // --- AGGREGATION LOGIC (Fixed: Multi-Employer Support) ---
@@ -173,6 +185,17 @@ const uploadForm16 = async (req, res) => {
     } catch (error) {
         console.error('Form 16 Processing Error:', error);
         res.status(500).json({ message: 'Failed to process Form 16', error: error.message });
+    } finally {
+        // CLEANUP: Always remove the local file from /tmp to prevent disk bloat
+        // This runs whether success or failure
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+            try {
+                fs.unlinkSync(req.file.path);
+                console.log(`Cleanup: Deleted temporary file ${req.file.path}`);
+            } catch (cleanupErr) {
+                console.error('Cleanup Warning: Failed to delete temp file:', cleanupErr);
+            }
+        }
     }
 };
 
