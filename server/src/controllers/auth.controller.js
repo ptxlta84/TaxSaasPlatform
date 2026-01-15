@@ -3,7 +3,9 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const otpService = require('../services/otpService');
 const { logAction } = require('../services/auditService');
+const { logAction } = require('../services/auditService');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 // Generate Access and Refresh Tokens
 const generateTokenPair = (user) => {
@@ -67,16 +69,16 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: errors.array()[0].msg });
   }
 
-  console.log("Registration attempt:", email, mobile); // Debug Log
+  logger.info("Registration attempt", { email, mobile });
 
   try {
     let user = await User.findOne({ email });
     if (user) {
-      console.log("Validation failed: User already exists"); // Debug Log
+      logger.warn("Registration validation failed: User exists", { email });
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    console.log("Saving user..."); // Debug Log
+    logger.info("Saving new user", { email });
     user = await User.create({
       name,
       email,
@@ -109,22 +111,22 @@ exports.register = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  console.log(`[DEBUG] Login Attempt - Email: ${email}, Password: ${password}`); // Log credentials (only for debug!)
+  const { email, password } = req.body; // extracted once
+  // logger.debug details removed for security
+
 
   try {
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-        console.log(`[DEBUG] Login Failed - User not found: ${email}`);
+        logger.warn(`Login Failed - User not found`, { email });
         return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await user.comparePassword(password);
-    console.log(`[DEBUG] User found. Password Match Result: ${isMatch}`);
-
+    
     if (!isMatch) {
-      console.log(`[DEBUG] Login Failed - Password mismatch`);
+      logger.warn(`Login Failed - Password mismatch`, { email });
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
