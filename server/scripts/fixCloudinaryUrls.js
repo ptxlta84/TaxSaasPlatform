@@ -10,14 +10,14 @@ const IncomeTaxReturn = require('../src/models/IncomeTaxReturn');
 
 const fixAllDocumentUrls = async () => {
   try {
-      console.log('Connecting to MongoDB...', process.env.MONGODB_URI ? 'URI Found' : 'URI Missing');
+      console.info('Connecting to MongoDB...', process.env.MONGODB_URI ? 'URI Found' : 'URI Missing');
       await mongoose.connect(process.env.MONGODB_URI);
-      console.log('Connected.');
+      console.info('Connected.');
       
       // Find all ITRs that might have documents
       const itrs = await IncomeTaxReturn.find({ 'documents.0': { $exists: true } });
       
-      console.log(`Found ${itrs.length} ITRs with documents`);
+      console.info(`Found ${itrs.length} ITRs with documents`);
       
       let fixedCount = 0;
 
@@ -34,7 +34,7 @@ const fixAllDocumentUrls = async () => {
                        const version = 'v' + Math.floor(Date.now() / 1000);
                        const newUrl = `${parts[0]}/upload/${version}/${parts[1]}`;
                        
-                       console.log(`Fixing: ${oldUrl} -> ${newUrl}`);
+                       console.info(`Fixing: ${oldUrl} -> ${newUrl}`);
                        doc.fileUrl = newUrl;
                        modified = true;
                        fixedCount++;
@@ -50,7 +50,7 @@ const fixAllDocumentUrls = async () => {
         }
       }
       
-      console.log(`All operations complete. Fixed ${fixedCount} URLs.`);
+      console.info(`All operations complete. Fixed ${fixedCount} URLs.`);
       process.exit(0);
 
   } catch (err) {

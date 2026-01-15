@@ -17,16 +17,16 @@ const User = mongoose.model('User', userSchema);
 const seedUser = async () => {
     try {
         await mongoose.connect(MONGO_URI);
-        console.log('Connected to MongoDB');
+        console.info('Connected to MongoDB');
 
         const existingUser = await User.findOne({ email: 'test@example.com' });
         if (existingUser) {
-            console.log('User test@example.com exists. Updating password...');
+            console.info('User test@example.com exists. Updating password...');
             const salt = await bcrypt.genSalt(10);
             existingUser.password = await bcrypt.hash('password123.', salt); // Manually hash
             existingUser.mobile = '9876543210';
             await existingUser.save();
-            console.log('Password updated successfully');
+            console.info('Password updated successfully');
         } else {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash('password123.', salt); // Manually hash
@@ -38,10 +38,10 @@ const seedUser = async () => {
             });
 
             await newUser.save();
-            console.log('Test user created successfully');
+            console.info('Test user created successfully');
         }
-        console.log('Email: test@example.com');
-        console.log('Password: password123.');
+        console.info('Email: test@example.com');
+        console.info('Password: password123.');
     } catch (err) {
         console.error('Error seeding user:', err);
     } finally {
