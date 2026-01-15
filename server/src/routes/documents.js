@@ -17,7 +17,7 @@ router.get('/preview', (req, res, next) => {
     // Router uses protect globally. User instruction implies 'authenticate' middleware, which we have as 'protect'.
     // We can assume req.user is populated if protect is valid.
     
-    console.log('PDF Diagnostic Test Request:', {
+    console.info('PDF Diagnostic Test Request:', {
       user: req.user ? req.user.email : 'Unauthenticated',
       timestamp: new Date().toISOString(),
       headers: req.headers,

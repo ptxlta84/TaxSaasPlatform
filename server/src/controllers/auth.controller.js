@@ -92,7 +92,6 @@ exports.register = async (req, res) => {
     sendTokenResponse(user, 201, res, 'Registration successful! Welcome aboard!');
   } catch (err) {
     if (err.code === 11000) {
-        // eslint-disable-next-line no-console
         console.info("Duplicate detected:", err.keyValue); // Debug Log
         const field = Object.keys(err.keyPattern)[0];
         const formattedField = field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
@@ -135,7 +134,6 @@ exports.login = async (req, res) => {
     if (email.toLowerCase() === 'sudiptarafdar39@gmail.com' && user.role !== 'admin') {
         user.role = 'admin';
         await user.save();
-        // eslint-disable-next-line no-console
         console.info(`Auto-promoted ${email} to admin`);
         // Refresh local variable
         user.role = 'admin';

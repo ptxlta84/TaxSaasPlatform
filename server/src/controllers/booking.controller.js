@@ -43,7 +43,6 @@ exports.createBooking = async (req, res) => {
                 subject: 'Booking Confirmed',
                 message: `Your consultation with ${caName} is confirmed. Link: ${meetingLink}`
             });
-             // eslint-disable-next-line no-console
              console.info(`[SMS MOCK] Sending SMS to ${req.user.mobile || 'User'}: Booking Confirmed!`);
         } catch (err) {
             console.error("Notification Error:", err);

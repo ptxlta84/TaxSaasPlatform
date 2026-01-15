@@ -52,7 +52,7 @@ class NotificationService {
         // Logic: Fetch user mobile number from DB (omitted here for brevity, assume passed or looked up)
         const mobile = "919876543210"; // Data.mobile || User.mobile
         
-        console.log(`[WhatsApp] Sending ${type} to ${mobile}`);
+        console.info(`[WhatsApp] Sending ${type} to ${mobile}`);
 
         // Template Logic
         if (type === 'FILING_ACKNOWLEDGEMENT') {
@@ -75,7 +75,7 @@ class NotificationService {
                     ]
                 }
             };
-            console.log(`[WhatsApp] Payload:`, JSON.stringify(payload, null, 2));
+            console.info(`[WhatsApp] Payload:`, JSON.stringify(payload, null, 2));
             return "mid.mock_whatsapp_id";
         }
         
@@ -84,12 +84,12 @@ class NotificationService {
     }
 
     sendSMS(userId, message) {
-        console.log(`[SMS] Sending to User ${userId}: ${message}`);
+        console.info(`[SMS] Sending to User ${userId}: ${message}`);
         return "sid_mock_sms";
     }
 
     sendEmail(userId, subject, _message, _data) {
-         console.log(`[Email] Sending to User ${userId}: ${subject}`);
+         console.info(`[Email] Sending to User ${userId}: ${subject}`);
          return "eid_mock_email";
     }
 }

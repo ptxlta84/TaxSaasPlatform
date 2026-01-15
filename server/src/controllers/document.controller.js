@@ -83,7 +83,6 @@ exports.previewDocument = (req, res) => {
         const { url } = req.query;
 
         // ENHANCED LOGGING (Step 2)
-        // eslint-disable-next-line no-console
         console.info('PDF Preview Request:', {
             userId: req.user ? req.user.id : 'Unauthenticated',
             requestedUrl: url,
@@ -95,7 +94,6 @@ exports.previewDocument = (req, res) => {
             return res.status(400).json({ error: 'No URL provided' });
         }
 
-        // eslint-disable-next-line no-console
         console.info('Processing PDF URL:', {
             url: url.substring(0, 100), // Log first 100 chars
             isCloudinary: url.includes('cloudinary.com')
@@ -106,7 +104,6 @@ exports.previewDocument = (req, res) => {
             // Transform for PDF display (force attachment if needed, or inline)
             // User instruction said: replace('/upload/', '/upload/fl_attachment/')
             const cloudinaryUrl = url.replace('/upload/', '/upload/fl_attachment/');
-            // eslint-disable-next-line no-console
             console.info('Redirecting to Cloudinary:', cloudinaryUrl);
 
             // Method A: Redirect (simplest)
@@ -114,7 +111,6 @@ exports.previewDocument = (req, res) => {
         }
 
         // Option 2: For other URLs, redirect directly
-        // eslint-disable-next-line no-console
         console.info('Redirecting to direct URL');
         return res.redirect(url);
 

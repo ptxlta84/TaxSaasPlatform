@@ -11,7 +11,7 @@ exports.generateOTP = (mobile) => {
   otpStore.set(mobile, { otp, expiresAt });
 
   // In a real app, integrate with SMS provider (Twilio, Gupshup, Msg91)
-  console.log(`[DEV ONLY] OTP for ${mobile}: ${otp}`);
+  console.info(`[DEV ONLY] OTP for ${mobile}: ${otp}`);
 
   return otp;
 };
