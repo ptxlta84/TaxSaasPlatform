@@ -46,6 +46,7 @@ exports.uploadForm16 = async (req, res) => {
              return res.status(400).json({ message: 'File processing failed' });
         }
         
+        // eslint-disable-next-line no-console
         console.info('Parsing Form-16...');
         const extractedData = await parseForm16(pdfBuffer);
         const { isPartA, isPartB } = extractedData;
@@ -151,13 +152,16 @@ exports.uploadForm16 = async (req, res) => {
             if(income.salary.netSalary > 0) itr.status = 'calculated'; // Confirm status update
 
             await itr.save();
+            // eslint-disable-next-line no-console
             console.info(`Tax Recalculated (${regimeType}):`, itr.computation.totalTaxLiability);
         } catch (calcErr) {
             console.error("Auto-calculation failed:", calcErr);
         }
 
         // FORENSIC LOGGING (MANDATORY)
+        // eslint-disable-next-line no-console
         console.info(`DETECTED_FORM16_PART = ${parsedPart}`);
+        // eslint-disable-next-line no-console
         console.info(`MATCH_REASON = ${matchReason}`);
         
         // STRICT CONTRACT RESPONSE
@@ -180,6 +184,7 @@ exports.uploadForm16 = async (req, res) => {
             }
         };
         
+        // eslint-disable-next-line no-console
         console.info("API RESPONSE:", JSON.stringify({
             parsedPart: responsePayload.parsedPart,
             form16Stage: responsePayload.form16Stage,
