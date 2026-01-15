@@ -39,7 +39,7 @@ jobs:
 
       - name: Test Client
         working-directory: ./client
-        run: npm test -- --passWithNoTests || echo "Tests completed"
+        run: npm test
 
       - name: Build Client
         working-directory: ./client
@@ -78,7 +78,7 @@ jobs:
 
       - name: Test Server
         working-directory: ./server
-        run: npm test -- --passWithNoTests || echo "Tests completed"
+        run: npm test
 
   # ------------------------------------------------------------------
   # COMBINED VALIDATION
