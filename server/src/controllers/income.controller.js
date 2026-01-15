@@ -46,7 +46,7 @@ exports.uploadForm16 = async (req, res) => {
              return res.status(400).json({ message: 'File processing failed' });
         }
         
-        console.log('Parsing Form-16...');
+        console.info('Parsing Form-16...');
         const extractedData = await parseForm16(pdfBuffer);
         const { isPartA, isPartB } = extractedData;
 
@@ -151,14 +151,14 @@ exports.uploadForm16 = async (req, res) => {
             if(income.salary.netSalary > 0) itr.status = 'calculated'; // Confirm status update
 
             await itr.save();
-            console.log(`Tax Recalculated (${regimeType}):`, itr.computation.totalTaxLiability);
+            console.info(`Tax Recalculated (${regimeType}):`, itr.computation.totalTaxLiability);
         } catch (calcErr) {
             console.error("Auto-calculation failed:", calcErr);
         }
 
         // FORENSIC LOGGING (MANDATORY)
-        console.log(`DETECTED_FORM16_PART = ${parsedPart}`);
-        console.log(`MATCH_REASON = ${matchReason}`);
+        console.info(`DETECTED_FORM16_PART = ${parsedPart}`);
+        console.info(`MATCH_REASON = ${matchReason}`);
         
         // STRICT CONTRACT RESPONSE
         const responsePayload = {
@@ -180,7 +180,7 @@ exports.uploadForm16 = async (req, res) => {
             }
         };
         
-        console.log("API RESPONSE:", JSON.stringify({
+        console.info("API RESPONSE:", JSON.stringify({
             parsedPart: responsePayload.parsedPart,
             form16Stage: responsePayload.form16Stage,
             debug: responsePayload.__debug

@@ -83,7 +83,7 @@ exports.previewDocument = (req, res) => {
         const { url } = req.query;
 
         // ENHANCED LOGGING (Step 2)
-        console.log('PDF Preview Request:', {
+        console.info('PDF Preview Request:', {
             userId: req.user ? req.user.id : 'Unauthenticated',
             requestedUrl: url,
             userAgent: req.headers['user-agent'],
@@ -94,7 +94,7 @@ exports.previewDocument = (req, res) => {
             return res.status(400).json({ error: 'No URL provided' });
         }
 
-        console.log('Processing PDF URL:', {
+        console.info('Processing PDF URL:', {
             url: url.substring(0, 100), // Log first 100 chars
             isCloudinary: url.includes('cloudinary.com')
         });
@@ -104,14 +104,14 @@ exports.previewDocument = (req, res) => {
             // Transform for PDF display (force attachment if needed, or inline)
             // User instruction said: replace('/upload/', '/upload/fl_attachment/')
             const cloudinaryUrl = url.replace('/upload/', '/upload/fl_attachment/');
-            console.log('Redirecting to Cloudinary:', cloudinaryUrl);
+            console.info('Redirecting to Cloudinary:', cloudinaryUrl);
 
             // Method A: Redirect (simplest)
             return res.redirect(cloudinaryUrl);
         }
 
         // Option 2: For other URLs, redirect directly
-        console.log('Redirecting to direct URL');
+        console.info('Redirecting to direct URL');
         return res.redirect(url);
 
     } catch (error) {
