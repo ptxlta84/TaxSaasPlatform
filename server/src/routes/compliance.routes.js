@@ -18,7 +18,7 @@ router.post('/upload', protect, upload.single('doc'), async (req, res) => {
             req
         });
         res.send(`/${req.file.path}`);
-    } catch (error) {
+    } catch {
         res.status(400).send('Error uploading file');
     }
 });

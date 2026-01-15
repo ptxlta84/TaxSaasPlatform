@@ -1,5 +1,5 @@
 const authorize = (...roles) => {
-  return async (req, res, next) => {
+  return (req, res, next) => {
     // req.user is populated by auth.middleware.js
     if (!req.user) {
       console.log('RBAC Error: No req.user found');

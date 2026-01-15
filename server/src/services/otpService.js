@@ -2,7 +2,7 @@
 // In production, use Redis with expiration
 const otpStore = new Map();
 
-exports.generateOTP = async (mobile) => {
+exports.generateOTP = (mobile) => {
   // Generate 6 digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   
@@ -16,7 +16,7 @@ exports.generateOTP = async (mobile) => {
   return otp;
 };
 
-exports.verifyOTP = async (mobile, otp) => {
+exports.verifyOTP = (mobile, otp) => {
   const storedData = otpStore.get(mobile);
   
   if (!storedData) {

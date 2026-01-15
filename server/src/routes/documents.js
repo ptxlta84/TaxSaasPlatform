@@ -8,7 +8,7 @@ router.use(protect);
 
 router.get('/', getUserDocuments);
 // TEST ENDPOINT: GET /api/documents/preview?test=1
-router.get('/preview', async (req, res, next) => {
+router.get('/preview', (req, res, next) => {
   const { test } = req.query;
   
   // Diagnostic test endpoint

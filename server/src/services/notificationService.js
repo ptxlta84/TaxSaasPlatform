@@ -2,8 +2,8 @@ const Notification = require('../models/Notification');
 // const emailService = require('./emailService'); // Assuming generic email service exists
 
 // Mock WhatsApp API configurations
-const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL || 'https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages';
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'mock_token';
+// const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL || 'https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages';
+// const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'mock_token';
 
 class NotificationService {
     
@@ -48,7 +48,7 @@ class NotificationService {
         return notification;
     }
 
-    async sendWhatsApp(userId, type, data) {
+    sendWhatsApp(userId, type, data) {
         // Logic: Fetch user mobile number from DB (omitted here for brevity, assume passed or looked up)
         const mobile = "919876543210"; // Data.mobile || User.mobile
         
@@ -83,12 +83,12 @@ class NotificationService {
         return "mid.mock_text_id";
     }
 
-    async sendSMS(userId, message) {
+    sendSMS(userId, message) {
         console.log(`[SMS] Sending to User ${userId}: ${message}`);
         return "sid_mock_sms";
     }
 
-    async sendEmail(userId, subject, message, data) {
+    sendEmail(userId, subject, _message, _data) {
          console.log(`[Email] Sending to User ${userId}: ${subject}`);
          return "eid_mock_email";
     }

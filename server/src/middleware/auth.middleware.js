@@ -22,7 +22,7 @@ exports.protect = async (req, res, next) => {
         return res.status(401).json({ message: 'User not found or deactivated' });
     }
     next();
-  } catch (err) {
+  } catch (_err) {
     return res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };

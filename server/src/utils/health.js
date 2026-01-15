@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-exports.checkDatabase = async () => {
+exports.checkDatabase = () => {
     try {
         const state = mongoose.connection.readyState;
         return {
