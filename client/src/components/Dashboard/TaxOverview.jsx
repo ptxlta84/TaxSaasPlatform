@@ -13,24 +13,24 @@ const TaxOverview = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     useEffect(() => {
-        fetchSummary();
-    }, []);
+        const fetchSummary = async () => {
+            try {
+                console.log("Fetching Tax Summary from:", `${API_URL}/tax/summary`); // DEBUG LOG
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/tax/summary`, {
+                    headers: { 'x-auth-token': token }
+                });
+                console.log("Tax Summary Received:", res.data); // DEBUG LOG
+                setSummary(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Tax Summary Fetch Failed:", err);
+                setLoading(false);
+            }
+        };
 
-    const fetchSummary = async () => {
-        try {
-            console.log("Fetching Tax Summary from:", `${API_URL}/tax/summary`); // DEBUG LOG
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/tax/summary`, {
-                headers: { 'x-auth-token': token }
-            });
-            console.log("Tax Summary Received:", res.data); // DEBUG LOG
-            setSummary(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error("Tax Summary Fetch Failed:", err);
-            setLoading(false);
-        }
-    };
+        fetchSummary();
+    }, [API_URL]);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', {

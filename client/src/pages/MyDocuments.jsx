@@ -9,8 +9,7 @@ const MyDocuments = () => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedDoc, setSelectedDoc] = useState(null);
-    const [error, setError] = useState('');
-    const [previewKey, setPreviewKey] = useState(0); // Force iframe re-render on retry
+    const [_error, setError] = useState('');
 
     useEffect(() => {
         fetchDocuments();
@@ -44,9 +43,7 @@ const MyDocuments = () => {
         setSelectedDoc({ ...doc, originalUrl: url });
     };
 
-    const handleRetryPreview = () => {
-        setPreviewKey(prev => prev + 1);
-    };
+
 
     return (
         <div className="p-6 max-w-7xl mx-auto h-[calc(100vh-6rem)] flex flex-col">

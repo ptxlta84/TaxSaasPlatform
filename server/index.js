@@ -36,10 +36,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Global Request Logger
-app.use((req, res, next) => {
-    console.log(`[REQUEST] ${req.method} ${req.url}`);
-    next();
-});
+app.use(require('./src/middleware/requestLogger'));
 
 // Security Middleware
 app.use(helmet());

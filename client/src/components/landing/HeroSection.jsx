@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, Building2, Globe, FileStack, ArrowRight } from 'lucide-react';
 import Button from '../Button/Button';
 import Container from '../Layout/Container';
 
 const HeroSection = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeUserType, setActiveUserType] = useState('salaried');
 

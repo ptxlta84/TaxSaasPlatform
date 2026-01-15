@@ -6,7 +6,7 @@ import Form16Preview from './Form16Preview';
 
 const Form16Upload = () => {
   const navigate = useNavigate();
-  const [file, setFile] = useState(null);
+  const [_file, setFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,7 +44,7 @@ const Form16Upload = () => {
                        }
                    });
               }
-          } catch (err) {
+          } catch {
               // No existing state or 404, ignore
               console.log('[Form16Upload] No existing session state found.');
           }
@@ -92,8 +92,7 @@ const Form16Upload = () => {
       
       try {
           // 1. Get/Create User's ITR Draft ID
-          const itr = await taxService.startFiling('2024-2025');
-          const itrId = itr._id;
+          await taxService.startFiling('2024-2025');
 
           // 2. Upload & Parse
           const res = await taxService.uploadForm16(uploadedFile);

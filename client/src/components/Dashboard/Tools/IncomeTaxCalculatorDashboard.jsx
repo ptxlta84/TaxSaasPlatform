@@ -5,13 +5,13 @@ import { Briefcase, Home, TrendingUp, DollarSign, PieChart, Save, RefreshCw, Upl
 import Form16Preview from './Form16Preview';
 // import TaxEstimator from './TaxEstimator.jsx';
 import { useAuth } from '../../../contexts/AuthContext';
-import { calculateIncomeTax }  from '../../../utils/taxCalculations/india2024'; // Reuse utility
+// import { calculateIncomeTax }  from '../../../utils/taxCalculations/india2024'; // Reuse utility
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
 const IncomeTaxCalculatorDashboard = () => {
-    const { user } = useAuth();
+    const { _user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
@@ -32,65 +32,69 @@ const IncomeTaxCalculatorDashboard = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     useEffect(() => {
+        const fetchIncomeDetails = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/income`, {
+                    headers: { 'x-auth-token': token }
+                });
+                if (res.data && !res.data.isNew) {
+                    // Merge with defaults to handle partial updates
+                    setIncomeData(prev => ({
+                        salary: { ...prev.salary, ...res.data.salary },
+                        houseProperty: { ...prev.houseProperty, ...res.data.houseProperty },
+                        business: { ...prev.business, ...res.data.business },
+                        capitalGains: { ...prev.capitalGains, ...res.data.capitalGains },
+                        otherSources: { ...prev.otherSources, ...res.data.otherSources }
+                    }));
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error('Failed to fetch income details', err);
+                setLoading(false);
+            }
+        };
+
         fetchIncomeDetails();
-    }, []);
+    }, [API_URL]);
 
     // Auto-calculate totals on change
     useEffect(() => {
+        const calculateTotals = () => {
+            const salaryNet = Math.max(0, Number(incomeData.salary.grossSalary) - Number(incomeData.salary.allowances));
+            
+            let houseNet = 0;
+            if (incomeData.houseProperty.type === 'let-out') {
+                const nav = Math.max(0, Number(incomeData.houseProperty.incomeFromRent) - Number(incomeData.houseProperty.municipalTaxes));
+                const stdDed = nav * 0.3;
+                houseNet = nav - stdDed - Number(incomeData.houseProperty.interestOnLoan);
+            } else {
+                houseNet = Math.max(-200000, -Number(incomeData.houseProperty.interestOnLoan));
+            }
+
+            const businessNet = Number(incomeData.business.netProfit);
+            const gainsNet = Number(incomeData.capitalGains.shortTerm) + Number(incomeData.capitalGains.longTerm);
+            const otherNet = Number(incomeData.otherSources.savingsInterest) + 
+                             Number(incomeData.otherSources.fdInterest) + 
+                             Number(incomeData.otherSources.dividend) + 
+                             Number(incomeData.otherSources.other);
+
+            setTotals({
+                salary: salaryNet,
+                houseProperty: houseNet,
+                business: businessNet,
+                capitalGains: gainsNet,
+                otherSources: otherNet,
+                grossTotal: salaryNet + houseNet + businessNet + gainsNet + otherNet
+            });
+        };
+
         calculateTotals();
     }, [incomeData]);
 
-    const fetchIncomeDetails = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/income`, {
-                headers: { 'x-auth-token': token }
-            });
-            if (res.data && !res.data.isNew) {
-                // Merge with defaults to handle partial updates
-                setIncomeData(prev => ({
-                    salary: { ...prev.salary, ...res.data.salary },
-                    houseProperty: { ...prev.houseProperty, ...res.data.houseProperty },
-                    business: { ...prev.business, ...res.data.business },
-                    capitalGains: { ...prev.capitalGains, ...res.data.capitalGains },
-                    otherSources: { ...prev.otherSources, ...res.data.otherSources }
-                }));
-            }
-            setLoading(false);
-        } catch (err) {
-            console.error('Failed to fetch income details', err);
-            setLoading(false);
-        }
-    };
 
-    const calculateTotals = () => {
-        const salaryNet = Math.max(0, Number(incomeData.salary.grossSalary) - Number(incomeData.salary.allowances));
-        
-        let houseNet = 0;
-        if (incomeData.houseProperty.type === 'let-out') {
-            const nav = Math.max(0, Number(incomeData.houseProperty.incomeFromRent) - Number(incomeData.houseProperty.municipalTaxes));
-            const stdDed = nav * 0.3;
-            houseNet = nav - stdDed - Number(incomeData.houseProperty.interestOnLoan);
-        } else {
-            houseNet = Math.max(-200000, -Number(incomeData.houseProperty.interestOnLoan));
-        }
 
-        const businessNet = Number(incomeData.business.netProfit);
-        const gainsNet = Number(incomeData.capitalGains.shortTerm) + Number(incomeData.capitalGains.longTerm);
-        const otherNet = Number(incomeData.otherSources.savingsInterest) + 
-                         Number(incomeData.otherSources.fdInterest) + 
-                         Number(incomeData.otherSources.dividend) + 
-                         Number(incomeData.otherSources.other);
 
-        setTotals({
-            salary: salaryNet,
-            houseProperty: houseNet,
-            business: businessNet,
-            capitalGains: gainsNet,
-            otherSources: otherNet,
-            grossTotal: salaryNet + houseNet + businessNet + gainsNet + otherNet
-        });
-    };
 
     const handleChange = (section, field, value) => {
         setIncomeData(prev => ({

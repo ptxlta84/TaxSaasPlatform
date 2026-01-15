@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import axios from 'axios';
+
 import { MemoryRouter } from 'react-router-dom';
 import Login from '../pages/auth/Login'; 
 import { AuthProvider } from '../contexts/AuthContext'; // Needed for context

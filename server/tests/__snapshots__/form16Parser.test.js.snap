@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Form-16 Parser Regression Tests correctly identifies Part A and extracts Employer Info 1`] = `
+{
+  "deductionsSection16": 0,
+  "employer": {
+    "address": "Electronic City, Bangalore - 560100, BLRM12345F, BLRM12345T",
+    "name": "MOCK CORP SOLUTIONS PVT LTD",
+    "tan": "BLRM12345T",
+  },
+  "exemptionsSection10": 0,
+  "grossSalary": 0,
+  "incomeHouseProperty": 0,
+  "incomeOtherSources": 0,
+  "isPartA": true,
+  "isPartB": false,
+  "matchReason": "Part A (Strict Signal Match)",
+  "pageCount": undefined,
+  "professionalTax": 0,
+  "standardDeduction": 0,
+  "taxableSalary": 0,
+  "tdsDeducted": 100000,
+  "textLength": 963,
+}
+`;
+
+exports[`Form-16 Parser Regression Tests correctly identifies Part B and extracts Salary Info 1`] = `
+{
+  "deductionsSection16": 52400,
+  "employer": {
+    "address": "",
+    "name": "Employer (Name not found)",
+    "tan": "",
+  },
+  "exemptionsSection10": 0,
+  "grossSalary": 1200000,
+  "incomeHouseProperty": 0,
+  "incomeOtherSources": 0,
+  "isPartA": false,
+  "isPartB": true,
+  "matchReason": "Part B (Tokens: Salary as per provisions, Less: Allowance, Gross Salary, Deductions under Chapter VI-A)",
+  "pageCount": undefined,
+  "professionalTax": 2400,
+  "standardDeduction": 50000,
+  "taxableSalary": 947600,
+  "tdsDeducted": 0,
+  "textLength": 989,
+}
+`;

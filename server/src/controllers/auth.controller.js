@@ -3,7 +3,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const otpService = require('../services/otpService');
 const { logAction } = require('../services/auditService');
-const { logAction } = require('../services/auditService');
+
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
