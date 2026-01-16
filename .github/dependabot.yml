@@ -1,0 +1,59 @@
+# .github/dependabot.yml
+version: 2
+
+updates:
+  # Frontend (React + Vite + Tailwind + etc.)
+  - package-ecosystem: "npm"
+    directory: "/client" # Path to client/package.json
+    schedule:
+      interval: "weekly" # Every 7 days (balanced)
+      day: "monday" # Optional: consistent day
+      time: "02:00" # UTC time (~7:30 AM IST)
+    open-pull-requests-limit: 10 # Cap open PRs to avoid overload
+    groups:
+      frontend-production:
+        applies-to: "version-updates"
+        dependency-type: "production"
+        update-types: ["patch", "minor"] # Safe, non-breaking updates
+      frontend-dev:
+        applies-to: "version-updates"
+        dependency-type: "development"
+        update-types: ["patch", "minor"]
+    ignore:
+      - dependency-name: "react" # Major React bumps often breaking
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+
+  # Backend (Node + Express + Mongoose + etc.)
+  - package-ecosystem: "npm"
+    directory: "/server" # Path to server/package.json
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+    open-pull-requests-limit: 10
+    groups:
+      backend-production:
+        applies-to: "version-updates"
+        dependency-type: "production"
+        update-types: ["patch", "minor"]
+      backend-dev:
+        applies-to: "version-updates"
+        dependency-type: "development"
+        update-types: ["patch", "minor"]
+    ignore:
+      - dependency-name: "express" # Major Express changes can break routes
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mongoose"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jsonwebtoken" # JWT major bumps often change API
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions workflows (your CI pipeline)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Actions updates less frequent
