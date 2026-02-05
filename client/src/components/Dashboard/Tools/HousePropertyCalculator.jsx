@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Home, Plus, Trash, Calculator, Save, Info } from 'lucide-react';
 import Button from '../../Button/Button';
 
@@ -18,35 +18,7 @@ const HousePropertyCalculator = ({ data, updateData }) => {
     const properties = data || localProperties;
     const setProperties = updateData ? (newData) => updateData(newData) : setLocalProperties;
 
-    const [totalIncome, setTotalIncome] = useState(0);
-
-    const addProperty = () => {
-        setProperties([...properties, {
-            id: Date.now(),
-            address: '',
-            propertyType: 'let_out',
-            municipalValue: 0,
-            actualRent: 0,
-            municipalTaxesPaid: 0,
-            interestOnLoan: 0,
-            preConstructionInterest: 0,
-            ownershipPercentage: 100
-        }]);
-    };
-
-    const removeProperty = (id) => {
-        setProperties(properties.filter(p => p.id !== id));
-    };
-
-    const updateProperty = (id, field, value) => {
-        const newProps = properties.map(p => {
-            if (p.id === id) return { ...p, [field]: value };
-            return p;
-        });
-        setProperties(newProps);
-    };
-
-    useEffect(() => {
+    const totalIncome = React.useMemo(() => {
         // let selfOccupiedCount = 0; // Removed unused
         let selfOccupiedInterest = 0;
 
@@ -108,9 +80,34 @@ const HousePropertyCalculator = ({ data, updateData }) => {
         // Subtract the capped self-occupied interest (Loss)
         finalTotal -= cappedSelfOccupiedLoss;
 
-        setTotalIncome(finalTotal);
-
+        return finalTotal;
     }, [properties]);
+
+    const addProperty = () => {
+        setProperties([...properties, {
+            id: Date.now(),
+            address: '',
+            propertyType: 'let_out',
+            municipalValue: 0,
+            actualRent: 0,
+            municipalTaxesPaid: 0,
+            interestOnLoan: 0,
+            preConstructionInterest: 0,
+            ownershipPercentage: 100
+        }]);
+    };
+
+    const removeProperty = (id) => {
+        setProperties(properties.filter(p => p.id !== id));
+    };
+
+    const updateProperty = (id, field, value) => {
+        const newProps = properties.map(p => {
+            if (p.id === id) return { ...p, [field]: value };
+            return p;
+        });
+        setProperties(newProps);
+    };
 
     return (
         <div className="max-w-6xl mx-auto pb-20">

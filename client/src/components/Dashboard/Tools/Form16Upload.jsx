@@ -20,7 +20,7 @@ const Form16Upload = () => {
           try {
               const income = await taxService.getIncomeDetails();
               if (income && income.form16Stage && income.form16Stage !== 'NONE') {
-                   console.log('[Form16Upload] Hydrating State:', income);
+// console.log('[Form16Upload] Hydrating State:', income);
                    setStage(income.form16Stage);
                    
                    // Reconstruct parsedData for Preview if Part B is already done
@@ -46,7 +46,7 @@ const Form16Upload = () => {
               }
           } catch {
               // No existing state or 404, ignore
-              console.log('[Form16Upload] No existing session state found.');
+              // console.log('[Form16Upload] No existing session state found.');
           }
       };
       
@@ -97,7 +97,7 @@ const Form16Upload = () => {
           // 2. Upload & Parse
           const res = await taxService.uploadForm16(uploadedFile);
           
-          console.log('[Form16Upload] Server Response:', res);
+          // console.log('[Form16Upload] Server Response:', res);
 
           // FORCE STATE UPDATE: Map 'parsed' from tax.controller to 'extractedData'
           const parsed = res.parsed;

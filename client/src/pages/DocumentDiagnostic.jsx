@@ -34,7 +34,7 @@ const DocumentDiagnostic = () => {
         if (response.ok) {
             try {
                 data = await response.json();
-            } catch (e) {
+            } catch {
                 data = { msg: 'Response OK but not JSON', text: await response.text() };
             }
         } else {

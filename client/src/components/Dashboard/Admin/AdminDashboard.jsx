@@ -2,48 +2,50 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, FileText, CheckCircle, TrendingUp, AlertCircle } from 'lucide-react';
 
+const StatCard = ({ title, value, icon: IconComponent, color, subtext }) => (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</h3>
+                {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+            </div>
+            <div className={`p-3 rounded-lg ${color}`}>
+                <IconComponent size={24} className="text-white" />
+            </div>
+        </div>
+    </div>
+);
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    // const API_URL = ... moved up
 
     useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Retrieve token manually
+                const token = localStorage.getItem('accessToken'); 
+                const res = await axios.get(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                    // Alternatively use authService if interceptor handles it
+                }); 
+                setStats(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+
         fetchStats();
     }, []);
 
-    const fetchStats = async () => {
-        try {
-            // Retrieve token manually
-            const token = localStorage.getItem('accessToken'); 
-            const res = await axios.get(`${API_URL}/admin/stats`, {
-                headers: { 'Authorization': `Bearer ${token}` } 
-                // Alternatively use authService if interceptor handles it
-            }); 
-            setStats(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
-        }
-    };
-
     if (loading) return <div className="p-8 text-center">Loading Stats...</div>;
-
-    const StatCard = ({ title, value, icon: Icon, color, subtext }) => (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</h3>
-                    {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
-                </div>
-                <div className={`p-3 rounded-lg ${color}`}>
-                    <Icon size={24} className="text-white" />
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <div className="space-y-6">

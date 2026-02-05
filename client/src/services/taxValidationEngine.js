@@ -84,16 +84,11 @@ export const RUN_VALIDATION = () => {
     // Sell House -> Gain 50L. Reinvest 40L.
     // Taxable Gain = 50L - 40L = 10L.
     // Tax @ 20% = 2L.
-    const cg3 = calculateSingleAssetGain({
-        type: 'REAL_ESTATE',
-        buyDate: '2010-04-01', // Long term
-        sellDate: '2024-05-01',
-        buyPrice: 2000000, 
-        sellPrice: 10000000, // Very high gain
-        exemptionSection: '54',
-        investmentAmount: 6000000 // Reinvesting, gain likely around 70-80L. 
-        // Let's optimize scenario to be clearer.
-    });
+    // --- SUITE 4: Section 54 Exemption ---
+    // Sell House -> Gain 50L. Reinvest 40L.
+    // Taxable Gain = 50L - 40L = 10L.
+    // Tax @ 20% = 2L.
+    // Calculate partial taxable case directly.
     
     // Manual Check:
     // Buy 2010 (CII: 167), Sell 2024 (CII: 363)

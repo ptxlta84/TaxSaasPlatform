@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Calendar, Clock, CreditCard, ChevronRight, CheckCircle, Video } from 'lucide-react';
 import Button from '../../Button/Button';
-import { bookingService } from '../../../services/bookingService';
+// import { bookingService } from '../../../services/bookingService';
 import { paymentService } from '../../../services/paymentService';
 
 const BookingModal = ({ isOpen, ca, onClose }) => {
@@ -12,7 +12,7 @@ const BookingModal = ({ isOpen, ca, onClose }) => {
   const [date, setDate] = useState('');
   const [timeSlot, setTimeSlot] = useState('');
   const [type, setType] = useState('quick_review');
-  const [duration, setDuration] = useState(30);
+  const [duration] = useState(30); // setDuration removed
   const [paymentMethod, setPaymentMethod] = useState('UPI');
 
   if (!isOpen || !ca) return null;
@@ -85,7 +85,7 @@ const BookingModal = ({ isOpen, ca, onClose }) => {
                             }
                         });
                         setStep(3); // Start Success Screen
-                    } catch (err) {
+                    } catch {
                         alert("Payment Verification Failed");
                     } finally {
                         setLoading(false);

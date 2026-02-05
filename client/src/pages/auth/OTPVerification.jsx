@@ -62,7 +62,7 @@ const OTPVerification = () => {
             await authService.sendOTP(mobile);
             setTimer(30);
             setError('');
-        } catch (err) {
+        } catch {
             setError('Failed to resend OTP');
         }
     };

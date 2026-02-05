@@ -17,11 +17,11 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       const extracted = rootPayload.extractedData || {};
       
       const employer = extracted.employer || rootPayload.employer || {};
-      const financialYear = rootPayload.financialYear || '2024-25';
+      // const financialYear = rootPayload.financialYear || '2024-25'; // Unused
       const parsedPart = rootPayload.parsedPart;
       const form16Stage = rootPayload.form16Stage; // Check both root and extracted? usually root.
       
-      const isPartA = parsedPart === 'A' || form16Stage === 'PART_A_PARSED';
+      // const isPartA = parsedPart === 'A' || form16Stage === 'PART_A_PARSED'; // Unused
       const isPartB = parsedPart === 'B' || form16Stage === 'PART_B_PARSED' || form16Stage === 'CONSOLIDATED';
 
       // Safe formatter helper
@@ -68,7 +68,7 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
 
       // STRICT DATA INTEGRITY CHECK (Required by Master Prompt)
       if (isPartB) {
-          const hasSalary = data.extractedData?.grossSalary > 0 || data.extractedData?.taxableSalary > 0;
+          // const hasSalary = data.extractedData?.grossSalary > 0 || data.extractedData?.taxableSalary > 0; // Unused
            // We use strict check. If backend says Part B, but no salary data is arguably visible, it's a render/data failure.
            // However, let's just log verification for now to avoid crashing if file is weird, unless strictly needed.
            // User asked: "if parsedPart === 'B' && !extractedData.salary) throw Error"
@@ -80,9 +80,9 @@ const Form16Preview = ({ data, onConfirm, onReupload }) => {
       }
       
       // DEBUG ECHO (MANDATORY)
-      if (data.__debug) {
-          console.log("__debug_form16 echo:", data.__debug);
-      }
+      // if (data.__debug) {
+      //     console.log("__debug_form16 echo:", data.__debug);
+      // }
       
       // Temporary Debug Echo in UI (for validation proof)
       const debugDisplay = data.__debug ? (

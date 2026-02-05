@@ -1,6 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Calculator, HelpCircle, Save, Plus, Trash } from 'lucide-react';
 import Button from '../../Button/Button';
+
+// Cost Inflation Index (Mock Data for recent years)
+const ciiMap = {
+    '2018-01': 280, '2019-01': 289, '2020-01': 301, '2021-01': 317, 
+    '2022-01': 331, '2023-01': 348, '2024-01': 363
+};
+
+const getCII = (dateStr) => {
+    // Simplified: just check year. In real app, check financial year range.
+    const year = dateStr.split('-')[0];
+    return ciiMap[`${year}-01`] || 363;
+};
 
 const CapitalGains = ({ data, updateData }) => {
     // If used inside Wizard, use props. Otherwise use local state.
@@ -14,21 +26,7 @@ const CapitalGains = ({ data, updateData }) => {
     const assets = data || localAssets;
     const setAssets = updateData ? (newData) => updateData(newData) : setLocalAssets;
 
-    const [summary, setSummary] = useState({ stcg: 0, ltcg: 0, totalTax: 0 });
-
-    // Cost Inflation Index (Mock Data for recent years)
-    const ciiMap = {
-        '2018-01': 280, '2019-01': 289, '2020-01': 301, '2021-01': 317, 
-        '2022-01': 331, '2023-01': 348, '2024-01': 363
-    };
-
-    const getCII = (dateStr) => {
-        // Simplified: just check year. In real app, check financial year range.
-        const year = dateStr.split('-')[0];
-        return ciiMap[`${year}-01`] || 363;
-    };
-
-    const calculateGains = React.useCallback(() => {
+    const summary = React.useMemo(() => {
         let stcgTotal = 0;
         let ltcgTotal = 0;
 
@@ -68,8 +66,8 @@ const CapitalGains = ({ data, updateData }) => {
         // Others LTCG @ 20% w/ indexation, STCG slab
         const tax = (stcgTotal * 0.15) + (ltcgTotal > 100000 ? (ltcgTotal - 100000) * 0.10 : 0);
 
-        setSummary({ stcg: stcgTotal, ltcg: ltcgTotal, totalTax: tax });
-    }, [assets]); // Added dependency
+        return { stcg: stcgTotal, ltcg: ltcgTotal, totalTax: tax };
+    }, [assets]);
 
     const updateAsset = (index, field, value) => {
         const newAssets = [...assets];
@@ -86,10 +84,6 @@ const CapitalGains = ({ data, updateData }) => {
         newAssets.splice(index, 1);
         setAssets(newAssets);
     };
-
-    useEffect(() => {
-        calculateGains();
-    }, [calculateGains]); // Added calculateGains to dependency
 
     return (
         <div className="max-w-6xl mx-auto pb-20">

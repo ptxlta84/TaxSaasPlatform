@@ -20,7 +20,7 @@ const DebugForm16Upload = () => {
         setResult(data);
         
         // Optional: Force dashboard update logic if we wanted to test hydration
-        console.log("Debug Mock Response:", data);
+        // Optional: Force dashboard update logic if we wanted to test hydration
     } catch (err) {
         setResult({ error: err.message });
     } finally {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../../contexts/AuthContext';
+// import { useAuth } from '../../../contexts/AuthContext'; // Removed unused
 import { Plus, Trash2, User, Briefcase, Users } from 'lucide-react';
 
 const TaxProfile = () => {
-    const { user } = useAuth();
+    // Auth context not required directly
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -30,11 +30,7 @@ const TaxProfile = () => {
         dependents: []
     });
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    const fetchProfile = async () => {
+    const fetchProfile = React.useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get(`${API_URL}/tax-profile`, {
@@ -69,7 +65,11 @@ const TaxProfile = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [API_URL]);
+
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

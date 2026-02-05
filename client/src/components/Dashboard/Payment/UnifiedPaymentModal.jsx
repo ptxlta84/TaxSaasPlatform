@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { X, CreditCard, ShieldCheck, FileText } from 'lucide-react';
 import Button from '../../Button/Button';
-import { paymentService } from '../../../services/paymentService'; // Existing service needing update? 
+import { useAuth } from '../../../contexts/AuthContext';
+// import { paymentService } from '../../../services/paymentService'; // Existing service needing update? 
 // No, existing service just calls API. We can reuse or extend.
 import api from '../../../services/authService'; // Direct API for custom endpoints if needed
 
-const UnifiedPaymentModal = ({ isOpen, onClose, amount, purpose = 'General Payment', metadata = {} }) => {
+const UnifiedPaymentModal = ({ isOpen, onClose, amount, purpose = 'General Payment', onSuccess = () => {} }) => {
+    const { user: userDetails } = useAuth();
     const [loading, setLoading] = useState(false);
 
     if (!isOpen) return null;

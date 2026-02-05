@@ -143,23 +143,26 @@ const NotificationPreferences = () => {
     );
 };
 
-const ToggleCard = ({ icon: Icon, label, desc, active, onClick, color }) => (
-    <div 
-        onClick={onClick}
-        className={`cursor-pointer border rounded-xl p-4 flex gap-4 transition-all ${active ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10 shadow-sm' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
-    >
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${active ? 'bg-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
-            <Icon className={active ? color : 'text-gray-400'} size={20} />
-        </div>
-        <div>
-            <div className="flex justify-between items-center mb-1">
-                <span className={`font-bold ${active ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{label}</span>
-                {active && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+const ToggleCard = ({ icon, label, desc, active, onClick, color }) => {
+    const Icon = icon;
+    return (
+        <div 
+            onClick={onClick}
+            className={`cursor-pointer border rounded-xl p-4 flex gap-4 transition-all ${active ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10 shadow-sm' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
+        >
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${active ? 'bg-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <Icon className={active ? color : 'text-gray-400'} size={20} />
             </div>
-            <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+            <div>
+                <div className="flex justify-between items-center mb-1">
+                    <span className={`font-bold ${active ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{label}</span>
+                    {active && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const CheckboxRow = ({ label, checked, onChange }) => (
     <label className="flex items-center gap-3 cursor-pointer group">

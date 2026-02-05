@@ -20,10 +20,6 @@ const UserManagement = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     const token = localStorage.getItem('accessToken'); 
 
-    useEffect(() => {
-        fetchUsers();
-    }, [page, search]);
-
     const fetchUsers = async () => {
         setLoading(true);
         try {
@@ -41,6 +37,10 @@ const UserManagement = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchUsers();
+    }, [page, search]);
 
     const fetchUserDetails = async (id) => {
         setDetailLoading(true);
@@ -67,7 +67,7 @@ const UserManagement = () => {
     // --- RENDER DETAIL VIEW ---
     if (selectedUser) {
         if (detailLoading) return <div className="p-8">Loading details...</div>;
-        const { user, profile, income, deductions, taxEstimate } = selectedUser;
+        const { user, income, taxEstimate } = selectedUser;
 
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">

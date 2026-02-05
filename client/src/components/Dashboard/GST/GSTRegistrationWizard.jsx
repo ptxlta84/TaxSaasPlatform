@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ChevronRight, ChevronLeft, Save } from 'lucide-react';
 import Button from '../../Button/Button';
 import { gstService } from '../../../services/gstService';
@@ -11,7 +11,7 @@ import PromoterDetails from './Steps/PromoterDetails';
 
 const GSTRegistrationWizard = () => {
     // const navigate = useNavigate(); // Removed unused
-    const [activeStep, setActiveStep] = useState(0);
+    const [step, setStep] = useState(0);
     // const [loading, setLoading] = useState(false); // Removed unused
     const [formData, setFormData] = useState({
         legalName: '',

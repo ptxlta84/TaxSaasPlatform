@@ -56,7 +56,7 @@ const ITRWizard = () => {
         try {
             await formRef.current.submit(); // Will throw if validation fails
         } catch (validationErrors) {
-            console.log('Validation Failed', validationErrors);
+            console.warn('Validation Failed', validationErrors);
             return; // Stop if validation fails
         }
     }

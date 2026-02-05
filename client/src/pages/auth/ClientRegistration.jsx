@@ -14,7 +14,7 @@ export default function ClientRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Implement registration logic here
-    console.log('Registering client:', formData);
+    // console.log('Registering client:', formData);
     // After registration, redirect to login or dashboard
     // Adjusted path to match existing routing
     navigate('/login');

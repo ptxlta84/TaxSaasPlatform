@@ -45,7 +45,7 @@ const Register = () => {
       }, 2000);
       
     } catch (err) {
-      console.log("Frontend error response:", err.response); // Debug Log
+      console.error("Frontend error response:", err.response); // Debug Log
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);

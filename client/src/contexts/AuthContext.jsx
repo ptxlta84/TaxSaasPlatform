@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => authService.getCurrentUser());
-  const [loading, setLoading] = useState(false); // Initial load is done synchronously now
+  const [loading, _setLoading] = useState(false); // Initial load is done synchronously now
   const [error, setError] = useState(null);
 
   // useEffect removed as state is initialized lazily

@@ -15,12 +15,12 @@ const TaxOverview = () => {
     useEffect(() => {
         const fetchSummary = async () => {
             try {
-                console.log("Fetching Tax Summary from:", `${API_URL}/tax/summary`); // DEBUG LOG
+                // console.log("Fetching Tax Summary from:", `${API_URL}/tax/summary`); // DEBUG LOG
                 const token = localStorage.getItem('token');
                 const res = await axios.get(`${API_URL}/tax/summary`, {
                     headers: { 'x-auth-token': token }
                 });
-                console.log("Tax Summary Received:", res.data); // DEBUG LOG
+                // console.log("Tax Summary Received:", res.data); // DEBUG LOG
                 setSummary(res.data);
                 setLoading(false);
             } catch (err) {

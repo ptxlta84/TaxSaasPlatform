@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Tab } from '@headlessui/react';
 import { Shield, Heart, Archive, Save, RefreshCw } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const DeductionsTracker = () => {
-    const { user } = useAuth();
+    // const { user } = useAuth(); // Removed unused
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -24,53 +26,50 @@ const DeductionsTracker = () => {
         section80C: 0, section80D: 0, other: 0, grossTotal: 0
     });
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    // const API_URL = ... moved up
 
     useEffect(() => {
+        const fetchDeductions = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/deductions`, {
+                    headers: { 'x-auth-token': token }
+                });
+                if (res.data && !res.data.isNew) {
+                    setDeductionData(prev => ({
+                        section80C: { ...prev.section80C, ...res.data.section80C },
+                        section80D: { ...prev.section80D, ...res.data.section80D },
+                        otherDeductions: { ...prev.otherDeductions, ...res.data.otherDeductions }
+                    }));
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error('Failed to fetch deductions', err);
+                setLoading(false);
+            }
+        };
         fetchDeductions();
     }, []);
 
     useEffect(() => {
+        const calculateTotals = () => {
+            // 80C Total
+            const total80C = Object.values(deductionData.section80C).reduce((acc, val) => acc + Number(val || 0), 0);
+            // 80D Total
+            const total80D = Object.values(deductionData.section80D).reduce((acc, val) => acc + Number(val || 0), 0);
+            // Other Total
+            const totalOther = Object.values(deductionData.otherDeductions).reduce((acc, val) => acc + Number(val || 0), 0);
+    
+            setTotals({
+                section80C: total80C,
+                section80D: total80D,
+                other: totalOther,
+                grossTotal: total80C + total80D + totalOther
+            });
+        };
+
         calculateTotals();
     }, [deductionData]);
-
-    const fetchDeductions = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/deductions`, {
-                headers: { 'x-auth-token': token }
-            });
-            if (res.data && !res.data.isNew) {
-                setDeductionData(prev => ({
-                    section80C: { ...prev.section80C, ...res.data.section80C },
-                    section80D: { ...prev.section80D, ...res.data.section80D },
-                    otherDeductions: { ...prev.otherDeductions, ...res.data.otherDeductions }
-                }));
-            }
-            setLoading(false);
-        } catch (err) {
-            console.error('Failed to fetch deductions', err);
-            setLoading(false);
-        }
-    };
-
-    const calculateTotals = () => {
-        // 80C Total (Standard Logic: Cap at 1.5L for tax calc, but here we show actuals first)
-        const total80C = Object.values(deductionData.section80C).reduce((acc, val) => acc + Number(val || 0), 0);
-        
-        // 80D Total
-        const total80D = Object.values(deductionData.section80D).reduce((acc, val) => acc + Number(val || 0), 0);
-        
-        // Other Total
-        const totalOther = Object.values(deductionData.otherDeductions).reduce((acc, val) => acc + Number(val || 0), 0);
-
-        setTotals({
-            section80C: total80C,
-            section80D: total80D,
-            other: totalOther,
-            grossTotal: total80C + total80D + totalOther
-        });
-    };
 
     const handleChange = (section, field, value) => {
         setDeductionData(prev => ({

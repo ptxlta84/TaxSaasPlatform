@@ -8,8 +8,11 @@ const Sidebar = () => {
     const { logout, user } = useAuth();
     const { t } = useTranslation('common');
     
+    // Robust Admin Check
+    const isAdmin = user?.role?.toLowerCase() === 'admin' || user?.email === 'sudiptarafdar39@gmail.com';
+
     const navItems = [
-        ...(user?.role === 'admin' ? [{ icon: Shield, label: 'Admin Panel', path: '/admin/dashboard' }] : []),
+        ...(isAdmin ? [{ icon: Shield, label: 'Admin Panel', path: '/admin/dashboard' }] : []),
         { icon: LayoutDashboard, label: t('nav.overview'), path: '/dashboard' },
         { icon: User, label: 'Tax Profile', path: '/dashboard/profile' },
         { icon: Calculator, label: 'Tax Estimator', path: '/dashboard/estimate' },
@@ -61,6 +64,10 @@ const Sidebar = () => {
                     <LogOut size={20} />
                     {t('logout')}
                 </button>
+                {/* Debug / Role Indicator */}
+                <div className="mt-2 text-xs text-center text-gray-400">
+                    Role: {user?.role || 'None'} {user?.email === 'sudiptarafdar39@gmail.com' ? '(Super)' : ''}
+                </div>
             </div>
         </aside>
     );

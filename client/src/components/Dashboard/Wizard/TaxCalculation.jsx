@@ -17,7 +17,7 @@ const TaxCalculation = ({ itrId }) => {
     if(itrId) triggerCalculation();
   }, [triggerCalculation, itrId]);
 
-  const triggerCalculation = async () => {
+  const triggerCalculation = React.useCallback(async () => {
     setLoading(true);
     try {
         const calcRes = await itrService.calculateTax(itrId); // Receive full ITR object or calculation
@@ -34,7 +34,7 @@ const TaxCalculation = ({ itrId }) => {
     } finally {
         setLoading(false);
     }
-  };
+  }, [itrId]);
 
   const handleDownload = (type) => {
       if (!isPaid) {
